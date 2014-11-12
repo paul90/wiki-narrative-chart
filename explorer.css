@@ -1,0 +1,88 @@
+body{
+    background: #eee url("images/crosses.png");
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    position: absolute;
+    overflow: hidden;
+    padding: 0px;
+    margin: 0px;
+    font-family: "Helvetica Neue", Verdana, helvetica, Arial, sans-serif;
+    line-height: 1.3;
+    color: #333;
+}
+
+.main {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 40px;
+    position: absolute;
+    margin: 0;
+    width: 100%;
+}
+
+.chart {
+    padding: 10px;
+    margin: 10px;
+    position: absolute;
+    min-height: 360px;
+    min-width: 1000px;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background: #FFFAFA;
+    border: 1px solid #eee;
+}
+
+
+footer {
+    border-top: 1px solid #3d3c43;
+    box-shadow: inset 0px 0px 7px rgba(0,0,0,0.8);
+    background: #eee url("images/noise.png");
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 20px;
+    padding: 10px;
+    font-size: 80%;
+    z-index: 1000;
+    color: #ccdcd2;
+}
+
+.neighbor {
+    float: right;
+    padding-left: 8px;
+    width: 16px;
+}
+
+.neighbor img {
+    width: 16px;
+    height: 16px;
+    background-color: #ccc;
+}
+
+.wait {
+    -webkit-animation: rotatecw 2s linear infinite;
+    -moz-animation: rotatecw 2s linear infinite;
+    animation: rotatecw 2s linear infinite;
+}
+
+.fetch {
+    -webkit-animation: rotatecw 5s linear infinite;
+    -moz-animation: rotatecw 5s linear infinite;
+    animation: rotatecw 5s linear infinite;
+}
+
+.fail {
+    -webkit-transform: rotate(15deg);
+    -moz-transform: rotate(15deg);
+    transform: rotate(15deg);
+}
+
+@-webkit-keyframes rotatecw { from { -webkit-transform: rotate(0deg); } to { -webkit-transform: rotate(360deg); } }
+@-moz-keyframes rotatecw { from { -webkit-transform: rotate(0deg); } to { -webkit-transform: rotate(360deg); } }
+@keyframes rotatecw { from { -webkit-transform: rotate(0deg); } to { -webkit-transform: rotate(360deg); } }

@@ -7,7 +7,7 @@
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  [om "0.7.3"]]
 
-  :plugins [[lein-cljsbuild "1.0.4-SNAPSHOT"]]
+  :plugins [[lein-cljsbuild "1.0.3"]]
 
   :source-paths ["src"]
 

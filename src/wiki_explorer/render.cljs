@@ -12,7 +12,6 @@
     om/IRender
     (render [this]
             (dom/span #js {:className "neighbor"}
-                      (print "in neighbor-view")
                       (dom/div #js {:className (:state neighbor)}
                                (dom/img #js {:src (str "http://" (:site neighbor) "/favicon.png")
                                              :title (:site neighbor)}))))))
@@ -26,6 +25,10 @@
     om/IRender
     (render [this]
             (apply dom/section #js {:className "neighborhood"}
-                   (print "in neighborhood-view")
-                   (print neighborhood)
                    (om/build-all neighbor-view neighborhood)))))
+
+
+;; Render the page narrative chart
+
+
+

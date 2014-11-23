@@ -17,15 +17,16 @@
                                              :title (:site neighbor)}))))))
 
 
-(defn neighborhood-view [neighborhood owner]
+(defn neighborhood-view [state owner]
   (reify
     om/IDisplayName
     (display-name [_]
                   "neighborhood")
     om/IRender
     (render [this]
+
             (apply dom/section #js {:className "neighborhood"}
-                   (om/build-all neighbor-view neighborhood)))))
+                   (om/build-all neighbor-view (map val (:neighborhood state)))))))
 
 
 ;; Render the page narrative chart

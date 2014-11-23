@@ -1,5 +1,6 @@
 (ns wiki-explorer.data
-  "Contains functions for manipulating the application data")
+  "Contains functions for manipulating the application data"
+  (:require [om.core :as om :include-macros true]))
 
 
 
@@ -9,9 +10,9 @@
 
 (defn set-slug
   "Add the page slug to the application state"
-  [state pageSlug]
+  [appState pageSlug]
 
-  (swap! state update-in [:page] conj {:slug pageSlug}))
+  (swap! appState update-in [:page] conj {:slug pageSlug}))
 
 ;  (set! (.-title js/document) "Chorus of Voices")
 
@@ -21,11 +22,17 @@
 
 ;; Neighborhood:
 
-(defn add-neighbour
+(defn add-neighbor
   "Add a new Neighbor to the Neighborhood, if not already added"
-  [state newNeighbour]
+  [appState newNeighbor]
 
-  (swap! state update-in [:neighborhood] conj newNeighbour)
-  (swap! state update-in [:processQueue] conj (:site newNeighbour)))
+  (if-not (contains? (:neighborhood @appState) newNeighbor)
+    (do
+      (swap! appState update-in [:neighborhood] conj {newNeighbor {:site newNeighbor :state "wait"}})
+      (swap! appState update-in [:processQueue] conj newNeighbor))))
 
+(defn change-neighbor-state
+  "Change the state of a neighbor"
+  [appState site siteState]
 
+  (swap! appState assoc-in [:neighborhood site :state] siteState))

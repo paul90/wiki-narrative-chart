@@ -72,9 +72,9 @@ footer {
 }
 
 .fetch {
-    -webkit-animation: rotatecw 5s linear infinite;
-    -moz-animation: rotatecw 5s linear infinite;
-    animation: rotatecw 5s linear infinite;
+    -webkit-animation: rotatecw .5s linear infinite;
+    -moz-animation: rotatecw .5s linear infinite;
+    animation: rotatecw .5s linear infinite;
 }
 
 .fail {

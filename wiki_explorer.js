@@ -24,10 +24,10 @@ goog.addDependency("../cljs/core/async/impl/timers.js", ['cljs.core.async.impl.t
 goog.addDependency("../cljs/core/async.js", ['cljs.core.async'], ['cljs.core.async.impl.channels', 'cljs.core.async.impl.dispatch', 'cljs.core', 'cljs.core.async.impl.buffers', 'cljs.core.async.impl.protocols', 'cljs.core.async.impl.ioc_helpers', 'cljs.core.async.impl.timers']);
 goog.addDependency("../cljs_http/core.js", ['cljs_http.core'], ['goog.net.XhrIo', 'cljs.core', 'cljs_http.util', 'cljs.core.async', 'goog.net.EventType']);
 goog.addDependency("../cljs_http/client.js", ['cljs_http.client'], ['cljs_http.core', 'no.en.core', 'goog.Uri', 'cljs.core', 'cljs_http.util', 'cljs.core.async', 'clojure.string', 'cljs.reader']);
-goog.addDependency("../clojure/walk.js", ['clojure.walk'], ['cljs.core']);
-goog.addDependency("../wiki_explorer/journal.js", ['wiki_explorer.journal'], ['cljs.core', 'cljs_http.client', 'cljs.core.async', 'clojure.walk']);
 goog.addDependency("../om/dom.js", ['om.dom'], ['cljs.core']);
 goog.addDependency("../om/core.js", ['om.core'], ['cljs.core', 'om.dom', 'goog.ui.IdGenerator']);
+goog.addDependency("../wiki_explorer/data.js", ['wiki_explorer.data'], ['cljs.core', 'om.core']);
+goog.addDependency("../clojure/walk.js", ['clojure.walk'], ['cljs.core']);
+goog.addDependency("../wiki_explorer/journal.js", ['wiki_explorer.journal'], ['goog.net.XhrIo', 'cljs.core', 'cljs_http.client', 'cljs.core.async', 'wiki_explorer.data', 'clojure.walk']);
 goog.addDependency("../wiki_explorer/render.js", ['wiki_explorer.render'], ['cljs.core', 'om.dom', 'om.core']);
-goog.addDependency("../wiki_explorer/data.js", ['wiki_explorer.data'], ['cljs.core']);
 goog.addDependency("../wiki_explorer/core.js", ['wiki_explorer.core'], ['wiki_explorer.journal', 'goog.Uri', 'cljs.core', 'om.dom', 'wiki_explorer.render', 'wiki_explorer.data', 'om.core']);

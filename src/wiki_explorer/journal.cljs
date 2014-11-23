@@ -14,16 +14,16 @@
             [goog.net.XhrIo :as xhr]
             [wiki-explorer.data :as data]))
 
+;; Processing the journal data is broken up into a number of steps.
+;; Starting with fetching the page from the server.
 
-;; ### 0. Fetch Page from server
+;; ### Fetch Page from server
 ;;
 ;; As this is performed asynchronously we will use `page-journal`
 ;; to hold the journal data, so we can wait before running the
 ;; next step.
 ;;
-;; TO-DO: error detection
 ;;
-
 (def ^:dynamic done "waiting")
 
 (def ^:dynamic page-journal [])
@@ -42,7 +42,23 @@
      (if done
        (set-journal (:journal (:body response)))))))
 
-;; ### 1. Extracting a page's journal data
+
+;; ### Rename data keys for fork events
+;;
+;; A fork journal entry marks the forking of the page from remote site. The `:site`
+;; gives the name of the remote site. We rename this entry to `:fork-from` as it is
+;; a better name, and we will be adding a `:site` to every journal entry indication
+;; which site the entry was made one.
+
+(defn rename-site-key
+  [journalData]
+
+  (walk/postwalk-replace {:site :fork-from} journalData))
+
+
+
+
+;; ### Add any missing dates
 ;;
 ;; Not all journal entries have a date, so while we are extracting
 ;; the journal, we will also detect those journal entries that are
@@ -57,32 +73,25 @@
   [date]
   (def je-date date))
 
-(defn step-1
-  "Given a page journal, we some inital checks to ensure that each
+(defn add-missing-dates
+  "We check that each entry has a date, if it is missing we will add
+  one, making it 10ms later than the previous journal entry.
+  Given a page journal, we some inital checks to ensure that each
   entry has a date. We also rename `:site` to `:fork-from`, in
   preparation for adding a `:site` to each entry in step-?"
-  []
+  [journalData]
 
-
-
-
-   (set-journal
-    (walk/postwalk-replace {:site :fork-from}
-                           (into []
-                                 (map (fn [je]
-                                        (into (sorted-map)
-                                              (do
-                                                (set-je-date (+ je-date 10))
-                                                (if (:date je)
-                                                  (do
-                                                    (set-je-date (:date je))
-                                                    (assoc je :date je-date))
-                                                  (assoc je :date je-date)))))
-                                      page-journal))))
-  )
-
-;; ### 2.
-;;
+  (into []
+        (map (fn [je]
+               (into (sorted-map)
+                     (do
+                       (set-je-date (+ je-date 10))
+                       (if (:date je)
+                         (do
+                           (set-je-date (:date je))
+                           (assoc je :date je-date))
+                         (assoc je :date je-date)))))
+             journalData)))
 
 
 
@@ -99,33 +108,38 @@
   "We process the process queue, adding to the neighborhood journal
   for the instance of the page on each of the sites in the queue"
   [state]
-;; we loop over the `:processQueue` until it is empty
+  ;; we loop over the `:processQueue` until it is empty
   (go
    (loop []
      (when (not (empty? (peek (:processQueue @state))))
        (def currentSite (peek (:processQueue @state)))
-;; change the state of the current site, in the neighborhood to *fetch* to
-;; provide visual feedback that it is being processed
+       ;; change the state of the current site, in the neighborhood to *fetch* to
+       ;; provide visual feedback that it is being processed
        (data/change-neighbor-state state currentSite "fetch")
        (prn "fetching -> " currentSite)
-;; we get the page json, and extract the journal data.
+       ;; we get the page json, and extract the journal data.
        (get-journal (clojure.string/join ["http://" currentSite "/" (:slug (:page @state)) ".json"]))
-;; having initiated the data fetch, we need to wait for it to complete
+       ;; having initiated the data fetch, we need to wait for it to complete
 
        (loop []
          (if (= done "waiting")
            (do
-;; if we are still *waiting* we will wait for 2000ms and look again
+             ;; if we are still *waiting* we will wait for 2000ms and look again
              (prn "waiting...")
              (<! (async/timeout 2000))
              (recur))
            (prn "done waiting...")))
-;; the fetch has now completed, `done` will be *true* if the page was fetched sucessfully, and
-;; be *false* if it failed.
+       ;; the fetch has now completed, `done` will be *true* if the page was fetched sucessfully, and
+       ;; be *false* if it failed.
        (if done
          (do
-           (-> page-journal
-               ())
+           ;; we change the state of the neighbor we are process to indicate we have started processing
+           ;; the journal data - the site icon will spin faster...
+           (data/change-neighbor-state state currentSite "process")
+           (->> page-journal
+                (rename-site-key)
+                (add-missing-dates)
+                (prn "end of pipe"))
            (prn "done -> " currentSite)
            (data/change-neighbor-state state currentSite "done"))
          (do
@@ -141,5 +155,15 @@
 
 
 ;; below here is some trials, to get the code right...
+
+
+page-journal
+
+(comment
+  (->> page-journal
+     (walk/postwalk-replace {:site :fork-from} )
+     (prn "done: "))
+  )
+
 
 

@@ -66,12 +66,18 @@ footer {
 }
 
 .wait {
+    -webkit-animation: rotatecw 5s linear infinite;
+    -moz-animation: rotatecw 5s linear infinite;
+    animation: rotatecw 5s linear infinite;
+}
+
+.fetch {
     -webkit-animation: rotatecw 2s linear infinite;
     -moz-animation: rotatecw 2s linear infinite;
     animation: rotatecw 2s linear infinite;
 }
 
-.fetch {
+.process {
     -webkit-animation: rotatecw .5s linear infinite;
     -moz-animation: rotatecw .5s linear infinite;
     animation: rotatecw .5s linear infinite;

@@ -2878,31 +2878,66 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(enable-console-print!)</pre></td></tr><tr><td class="docs"><h2>Application State</h2>
 </td><td class="codes"></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def app-state (atom {:page {}
-                      :neighborhood []
+                      :neighborhood {}
                       :mergedJournal []
-                      :processQueue cljs.core.PersistentQueue.EMPTY}))</pre></td></tr><tr><td class="docs"><p>But for now...</p>
-</td><td class="codes"></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(data/set-slug app-state {:slug &quot;chorus-of-voices&quot;})</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(data/add-neighbor app-state &quot;localhost:3000&quot;)
-(data/add-neighbor app-state &quot;ward.fed.wiki.org&quot;)
-(data/add-neighbor app-state &quot;design.fed.wiki.org&quot;)
-(data/add-neighbor app-state &quot;tug.fed.wiki.org&quot;)</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(om/root render/neighborhood-view (:neighborhood @app-state)
-         {:target (. js/document (getElementById &quot;neighborhood&quot;))})</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">@app-state
+                      :processQueue cljs.core.PersistentQueue.EMPTY}))</pre></td></tr><tr><td class="docs"><p>initial state will eventually be loaded from data passed
+in the url.</p>
 
- (:neighborhood @app-state)</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(-&gt; (:neighborhood @app-state) :site)</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#wiki-explorer.data" name="wiki-explorer.data"><h1 class="project-name">wiki-explorer.data</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Contains functions for manipulating the application data</p>
-</td><td class="codes"><pre class="brush: clojure">(ns wiki-explorer.data)</pre></td></tr><tr><td class="docs"><p>Page:</p>
+<p>the page location is
+    (.-location js/window)</p>
+
+<p>the page fragment can be extracted using closure Uri
+    (.getFragment (Uri. (.-href (.-location js/window))))</p>
+
+<p>But for now...</p>
+
+<p>some testdata using a local test wiki as the starting point</p>
+
+<p>page:         'chorus-of-voices'
+neighborhood: localhost:3000
+              ward.fed.wiki.org
+              design.fed.wiki.org
+              tug.fed.wiki.org</p>
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(data/set-slug app-state &quot;chorus-of-voices&quot;)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(data/add-neighbor app-state &quot;localhost:3000&quot;)</pre></td></tr><tr><td class="docs"><p>(data/add-neighbor app-state "ward.fed.wiki.org")
+(data/add-neighbor app-state "design.fed.wiki.org")
+(data/add-neighbor app-state "tug.fed.wiki.org")</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>we render a status bar with the site icons for the sites in the neighborhood. Their state om/will
+change as they are processed, but reflecting this in the interface just happens.</p>
+</td><td class="codes"><pre class="brush: clojure">(om/root
+   render/neighborhood-view
+   app-state
+   {:target (. js/document (getElementById &quot;neighborhood&quot;))})</pre></td></tr><tr><td class="docs"><p>om/root for the story narrative gets added here...</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>We now need to build the merged journal for the page in the neighborhood</p>
+
+<p>We need to take each site in the <code>:processQueue</code>, fetch the page from that site
+and process the journal into the form we want, and merge it into the growning <code>:mergedJournal</code></p>
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(journal/build-neighborhood-journal app-state)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(comment
+(data/add-neighbor app-state &quot;localhost:3001&quot;)
+(peek (:processQueue @app-state))
+(:slug (:page @app-state))
+(def ^:dynamic currentURL (clojure.string/join [&quot;http://&quot; (peek (:processQueue @app-state)) &quot;/&quot; (:slug (:page @app-state)) &quot;.json&quot;]))
+(def currentURL (join &quot;http://&quot; (peek (:processQueue @app-state)) ) )
+currentURL)</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#wiki-explorer.data" name="wiki-explorer.data"><h1 class="project-name">wiki-explorer.data</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Contains functions for manipulating the application data</p>
+</td><td class="codes"><pre class="brush: clojure">(ns wiki-explorer.data
+  (:require [om.core :as om :include-macros true]))</pre></td></tr><tr><td class="docs"><p>Page:</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>Add the page slug to the application state</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-slug
-  [state pageSlug]
-  (swap! state update-in [:page] conj {:slug pageSlug}))</pre></td></tr><tr><td class="docs"><p>Neighborhood:</p>
+  [appState pageSlug]
+  (swap! appState update-in [:page] conj {:slug pageSlug}))</pre></td></tr><tr><td class="docs"><p>Neighborhood:</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>Add a new Neighbor to the Neighborhood, if not already added</p>
 </td><td class="codes"><pre class="brush: clojure">(defn add-neighbor
-  [state newNeighbour]
-  (swap! state update-in [:neighborhood] conj (into {} [newNeighbour [:site newNeighbour] [:state &quot;wait&quot;]]))
-  (swap! state update-in [:processQueue] conj newNeighbour))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#wiki-explorer.journal" name="wiki-explorer.journal"><h1 class="project-name">wiki-explorer.journal</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Contains functions for manipulation of page journal data</p>
+  [appState newNeighbor]
+  (if-not (contains? (:neighborhood @appState) newNeighbor)
+    (do
+      (swap! appState update-in [:neighborhood] conj {newNeighbor {:site newNeighbor :state &quot;wait&quot;}})
+      (swap! appState update-in [:processQueue] conj newNeighbor))))</pre></td></tr><tr><td class="docs"><p>Change the state of a neighbor</p>
+</td><td class="codes"><pre class="brush: clojure">(defn change-neighbor-state
+  [appState site siteState]
+  (swap! appState assoc-in [:neighborhood site :state] siteState))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#wiki-explorer.journal" name="wiki-explorer.journal"><h1 class="project-name">wiki-explorer.journal</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Contains functions for manipulation of page journal data</p>
 
 <h2>Merging Page Journals</h2>
 
@@ -2915,14 +2950,14 @@ also how it has changed across the neighborhood.</p>
   (:require [cljs-http.client :as http]
             [cljs.core.async :as async :refer [&lt;! &gt;! chan close!]]
             [clojure.walk :as walk]
-            [goog.net.XhrIo :as xhr]))</pre></td></tr><tr><td class="docs"><h3>0. Fetch Page from server</h3>
+            [goog.net.XhrIo :as xhr]
+            [wiki-explorer.data :as data]))</pre></td></tr><tr><td class="docs"><p>Processing the journal data is broken up into a number of steps.
+Starting with fetching the page from the server.</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><h3>Fetch Page from server</h3>
 
 <p>As this is performed asynchronously we will use <code>page-journal</code>
 to hold the journal data, so we can wait before running the
 next step.</p>
-
-<p>TO-DO: error detection</p>
-</td><td class="codes"></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def ^:dynamic done &quot;waiting&quot;)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def ^:dynamic page-journal [])</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn set-journal
@@ -2936,7 +2971,16 @@ next step.</p>
    (let [response (&lt;! (http/get url {:with-credentials? false}))]
      (def done (:success response))
      (if done
-       (set-journal (:journal (:body response)))))))</pre></td></tr><tr><td class="docs"><h3>1. Extracting a page's journal data</h3>
+       (set-journal (:journal (:body response)))))))</pre></td></tr><tr><td class="docs"><h3>Rename data keys for fork events</h3>
+
+<p>A fork journal entry marks the forking of the page from remote site. The <code>:site</code>
+gives the name of the remote site. We rename this entry to <code>:fork-from</code> as it is
+a better name, and we will be adding a <code>:site</code> to every journal entry indication
+which site the entry was made one.</p>
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn rename-site-key
+  [journalData]
+  (walk/postwalk-replace {:site :fork-from} journalData))</pre></td></tr><tr><td class="docs"><h3>Add any missing dates</h3>
 
 <p>Not all journal entries have a date, so while we are extracting
 the journal, we will also detect those journal entries that are
@@ -2947,61 +2991,75 @@ previous entry, and still preserve the overall order.</p>
 </td><td class="codes"><pre class="brush: clojure">(def ^:dynamic je-date 0)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn set-je-date
   [date]
-  (def je-date date))</pre></td></tr><tr><td class="docs"><p>Given a page journal, we some inital checks to ensure that each
+  (def je-date date))</pre></td></tr><tr><td class="docs"><p>We check that each entry has a date, if it is missing we will add
+  one, making it 10ms later than the previous journal entry.
+  Given a page journal, we some inital checks to ensure that each
   entry has a date. We also rename <code>:site</code> to <code>:fork-from</code>, in
   preparation for adding a <code>:site</code> to each entry in step-?</p>
-</td><td class="codes"><pre class="brush: clojure">(defn step-1
-  []
-   (set-journal
-    (walk/postwalk-replace {:site :fork-from}
-                           (into []
-                                 (map (fn [je]
-                                        (into (sorted-map)
-                                              (do
-                                                (set-je-date (+ je-date 10))
-                                                (if (:date je)
-                                                  (do
-                                                    (set-je-date (:date je))
-                                                    (assoc je :date je-date))
-                                                  (assoc je :date je-date)))))
-                                      page-journal)))))</pre></td></tr><tr><td class="docs"><h3>2.</h3>
-</td><td class="codes"></td></tr><tr><td class="docs"><p>We process the process queue, adding to the neighborhood journal
+</td><td class="codes"><pre class="brush: clojure">(defn add-missing-dates
+  [journalData]
+  (into []
+        (map (fn [je]
+               (into (sorted-map)
+                     (do
+                       (set-je-date (+ je-date 10))
+                       (if (:date je)
+                         (do
+                           (set-je-date (:date je))
+                           (assoc je :date je-date))
+                         (assoc je :date je-date)))))
+             journalData)))</pre></td></tr><tr><td class="docs"><h3>Build Journal for Page in Neighborhood</h3>
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def ^:dynamic currentSite )</pre></td></tr><tr><td class="docs"><p>We process the process queue, adding to the neighborhood journal
   for the instance of the page on each of the sites in the queue</p>
-
-<h3>Build Journal for Page in Neighborhood</h3>
 </td><td class="codes"><pre class="brush: clojure">(defn build-neighborhood-journal
-  [state])</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(comment
-;; 1. Fetch Page Journal
-  (get-journal url)
-
-;; we need to wait for the page journal to be fetched from the server
-
+  [state]
+;; we loop over the `:processQueue` until it is empty
   (go
    (loop []
-     (if (= done &quot;waiting&quot;)
-       (do
-         (prn &quot;waiting&quot;)
-         (&lt;! (async/timeout 2000))
-         (recur))
-       (prn &quot;done waiting&quot;)))
+     (when (not (empty? (peek (:processQueue @state))))
+       (def currentSite (peek (:processQueue @state)))
+;; change the state of the current site, in the neighborhood to *fetch* to
+;; provide visual feedback that it is being processed
+       (data/change-neighbor-state state currentSite &quot;fetch&quot;)
+       (prn &quot;fetching -&gt; &quot; currentSite)
+;; we get the page json, and extract the journal data.
+       (get-journal (clojure.string/join [&quot;http://&quot; currentSite &quot;/&quot; (:slug (:page @state)) &quot;.json&quot;]))
+;; having initiated the data fetch, we need to wait for it to complete
+       (loop []
+         (if (= done &quot;waiting&quot;)
+           (do
+;; if we are still *waiting* we will wait for 2000ms and look again
+             (prn &quot;waiting...&quot;)
+             (&lt;! (async/timeout 2000))
+             (recur))
+           (prn &quot;done waiting...&quot;)))
+;; the fetch has now completed, `done` will be *true* if the page was fetched sucessfully, and
+;; be *false* if it failed.
+       (if done
+         (do
+;; we change the state of the neighbor we are process to indicate we have started processing
+;; the journal data - the site icon will spin faster...
+           (data/change-neighbor-state state currentSite &quot;process&quot;)
+           (-&gt;&gt; page-journal
+                (rename-site-key)
+                (add-missing-dates)
+                (prn &quot;end of pipe&quot;))
+           (prn &quot;done -&gt; &quot; currentSite)
+           (data/change-neighbor-state state currentSite &quot;done&quot;))
+         (do
+           (prn &quot;fetch failed&quot; currentSite)
+           (data/change-neighbor-state state currentSite &quot;fail&quot;)))
+       (swap! state assoc-in [:processQueue] (pop (:processQueue @state)))
+       (recur)))))</pre></td></tr><tr><td class="docs"><p>below here is some trials, to get the code right...</p>
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">page-journal
 
-  (if done
-    (prn &quot;fetch worked&quot;)
-    ;(-&gt;
-    ;(step-1))
-    (prn &quot;fetch failed&quot;))
-  ))</pre></td></tr><tr><td class="docs"><p>below here is some trials, to get the code right...</p>
-</td><td class="codes"></td></tr><tr><td class="docs"><p>(get-journal "http://ward.fed.wiki.org/chorus-of-voices.json")</p>
-</td><td class="codes"></td></tr><tr><td class="docs"><p>(prn (get-journal "http://localhost:3000/chorus-of-voices.json"))</p>
-</td><td class="codes"></td></tr><tr><td class="docs"><p>(journal-extract "http://localhost:3000/chorus-of-voices.json")</p>
-</td><td class="codes"></td></tr><tr><td class="docs"><p>(journal-extract "http://ward.fed.wiki.org/chorus-of-voices.json")</p>
-</td><td class="codes"></td></tr><tr><td class="docs"><p>(process-journal "http://localhost:3000/chorus-of-voices.json")
-(process-journal "http://ward.fed.wiki.org/chorus-of-voices.json")</p>
-</td><td class="codes"></td></tr><tr><td class="docs"><p>(prn page-journal)</p>
-</td><td class="codes"></td></tr><tr><td class="docs"><p>(walk/postwalk-replace {:site :fork-from} page-journal)
-je-date</p>
-</td><td class="codes"></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#wiki-explorer.render" name="wiki-explorer.render"><h1 class="project-name">wiki-explorer.render</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+(comment
+  (-&gt;&gt; page-journal
+     (walk/postwalk-replace {:site :fork-from} )
+     (prn &quot;done: &quot;))
+  )</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#wiki-explorer.render" name="wiki-explorer.render"><h1 class="project-name">wiki-explorer.render</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns wiki-explorer.render
   (:require [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]))</pre></td></tr><tr><td class="docs"><p>Render the bottom bar</p>
@@ -3017,7 +3075,7 @@ je-date</p>
                       (dom/div #js {:className (:state neighbor)}
                                (dom/img #js {:src (str &quot;http://&quot; (:site neighbor) &quot;/favicon.png&quot;)
                                              :title (:site neighbor)}))))))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn neighborhood-view [neighborhood owner]
+</td><td class="codes"><pre class="brush: clojure">(defn neighborhood-view [state owner]
   (reify
     om/IDisplayName
     (display-name [_]
@@ -3025,7 +3083,7 @@ je-date</p>
     om/IRender
     (render [this]
             (apply dom/section #js {:className &quot;neighborhood&quot;}
-                   (om/build-all neighbor-view neighborhood)))))</pre></td></tr><tr><td class="docs"><p>Render the page narrative chart</p>
+                   (om/build-all neighbor-view (map val (:neighborhood state)))))))</pre></td></tr><tr><td class="docs"><p>Render the page narrative chart</p>
 </td><td class="codes"></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/gdeer81/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_wiki-explorer.core">wiki-explorer.core</li><li class="floating-toc-li" id="floating-toc_wiki-explorer.data">wiki-explorer.data</li><li class="floating-toc-li" id="floating-toc_wiki-explorer.journal">wiki-explorer.journal</li><li class="floating-toc-li" id="floating-toc_wiki-explorer.render">wiki-explorer.render</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
 SyntaxHighlighter.all();
 

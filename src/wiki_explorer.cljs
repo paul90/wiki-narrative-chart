@@ -42,9 +42,9 @@
 (data/set-slug app-state "chorus-of-voices")
 
 (data/add-neighbor app-state "localhost:3000")
-(data/add-neighbor app-state "ward.fed.wiki.org")
-(data/add-neighbor app-state "design.fed.wiki.org")
-(data/add-neighbor app-state "tug.fed.wiki.org")
+;(data/add-neighbor app-state "ward.fed.wiki.org")
+;(data/add-neighbor app-state "design.fed.wiki.org")
+;(data/add-neighbor app-state "tug.fed.wiki.org")
 
 
 ;; we render a status bar with the site icons for the sites in the neighborhood. Their state om/will

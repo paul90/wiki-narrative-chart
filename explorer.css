@@ -23,12 +23,12 @@ body{
     width: 100%;
 }
 
-.chart {
+.neighborhood-narrative {
     padding: 10px;
     margin: 10px;
+    width: 100%;
+    height: 100%;
     position: absolute;
-    min-height: 360px;
-    min-width: 1000px;
     top: 0px;
     left: 0px;
     right: 0px;

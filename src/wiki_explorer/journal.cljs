@@ -93,6 +93,55 @@
                          (assoc je :date je-date)))))
              journalData)))
 
+;; ### Add site to journal entry
+;;
+;; Journal entries don't contain details about which site the entry was made on.
+;; However, we can infer this detail by walking the journal in reverse as we know
+;; which site the journal has been retrieved from. Any fork events we find change
+;; the site the entry was made on.
+
+(def ^:dynamic curr-site "")
+
+(defn set-curr-site
+  [site]
+  "used to change the current site when we encounter a fork"
+  (def curr-site site))
+
+(def ^:dynamic next-site "")
+
+(defn set-next-site
+  [site]
+  "used to change the current site when we encounter a fork"
+  (def next-site site))
+
+(defn add-journal-entry-site
+  [state currentSite journalData]
+
+  (do
+    (set-next-site currentSite)
+    (loop [journalData journalData, acc ()]
+      (if (empty? journalData)
+        (into [] acc)
+        (recur (drop-last journalData)
+               (do
+                 (set-curr-site next-site)
+               (if (= (:type (last journalData)) "fork")
+                 (do
+                   (set-next-site (:fork-from (last journalData)))
+;; commented out, so we can restrict ourselves to getting the journal from a single site to start with.
+                   ;(data/add-neighbor state next-site)
+                   (prn "fork from : " next-site)))
+               (conj acc (assoc (last journalData) :site curr-site))))))))
+
+
+;; ### Merge the current journal into the neighborhood journal
+
+(defn merge-into-neighborhood
+  ""
+  [state journalData]
+
+  (swap! state assoc-in [:mergedJournal] (sort-by :date (distinct (into (:mergedJournal @state) journalData)))))
+
 
 
 
@@ -139,10 +188,12 @@
            (->> page-journal
                 (rename-site-key)
                 (add-missing-dates)
-                (prn "end of pipe"))
+                (add-journal-entry-site state currentSite)
+                (merge-into-neighborhood state))
            (prn "done -> " currentSite)
            (data/change-neighbor-state state currentSite "done"))
          (do
+           ;; fetching the page failed, the state of the neighbor is changed to `fail`.
            (prn "fetch failed" currentSite)
            (data/change-neighbor-state state currentSite "fail")))
        (swap! state assoc-in [:processQueue] (pop (:processQueue @state)))
@@ -155,15 +206,6 @@
 
 
 ;; below here is some trials, to get the code right...
-
-
-page-journal
-
-(comment
-  (->> page-journal
-     (walk/postwalk-replace {:site :fork-from} )
-     (prn "done: "))
-  )
 
 
 

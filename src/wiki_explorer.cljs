@@ -39,7 +39,8 @@
 ;;               design.fed.wiki.org
 ;;               tug.fed.wiki.org
 
-(data/set-slug app-state "chorus-of-voices")
+;(data/set-slug app-state "chorus-of-voices")
+(data/set-slug app-state "testing")
 
 (data/add-neighbor app-state "localhost:3000")
 ;(data/add-neighbor app-state "ward.fed.wiki.org")
@@ -54,8 +55,14 @@
    app-state
    {:target (. js/document (getElementById "neighborhood"))})
 
+;; we render the page neighborhood narrative using the journal entries we build-up in the `:mergedJournal`
+;; the view should get updated as the merged journal grows.
+;;
 
-;; om/root for the story narrative gets added here...
+(om/root
+   render/neighborhood-narrative
+   app-state
+   {:target (. js/document (getElementById "neighborhood-narrative"))})
 
 
 
@@ -68,21 +75,3 @@
 (journal/build-neighborhood-journal app-state)
 
 
-
-
-
-
-
-(comment
-
-(data/add-neighbor app-state "localhost:3001")
-
-(peek (:processQueue @app-state))
-(:slug (:page @app-state))
-
-
-(def ^:dynamic currentURL (clojure.string/join ["http://" (peek (:processQueue @app-state)) "/" (:slug (:page @app-state)) ".json"])
-)
-(def currentURL (join "http://" (peek (:processQueue @app-state)) ) )
-
-currentURL)

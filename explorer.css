@@ -14,25 +14,19 @@ body{
 }
 
 .main {
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 40px;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 60px;
     position: absolute;
-    margin: 0;
+    margin: 0px;
     width: 100%;
 }
 
 .neighborhood-narrative {
-    padding: 10px;
-    margin: 10px;
-    width: 100%;
+    padding: 0px;
+    margin: 8px;
     height: 100%;
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
     background: #FFFAFA;
     border: 1px solid #eee;
 }

@@ -74,4 +74,3 @@
 
 (journal/build-neighborhood-journal app-state)
 
-

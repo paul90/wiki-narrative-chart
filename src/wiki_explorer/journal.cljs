@@ -128,8 +128,7 @@
                (if (= (:type (last journalData)) "fork")
                  (do
                    (set-next-site (:fork-from (last journalData)))
-;; commented out, so we can restrict ourselves to getting the journal from a single site to start with.
-                   ;(data/add-neighbor state next-site)
+                   (data/add-neighbor state next-site)
                    (prn "fork from : " next-site)))
                (conj acc (assoc (last journalData) :site curr-site))))))))
 

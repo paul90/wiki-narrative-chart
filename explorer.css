@@ -9,7 +9,8 @@ body{
     padding: 0px;
     margin: 0px;
     font-family: "Helvetica Neue", Verdana, helvetica, Arial, sans-serif;
-    line-height: 1.3;
+    font-size: 12px;
+/*    line-height: 1.3; */
     color: #333;
 }
 
@@ -86,3 +87,17 @@ footer {
 @-webkit-keyframes rotatecw { 100% { -webkit-transform: rotate(360deg); } }
 @-moz-keyframes rotatecw { 100% { -webkit-transform: rotate(360deg); } }
 @keyframes rotatecw { 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
+
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #555;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  line-height 0.8;
+  fill: #555;
+}
+

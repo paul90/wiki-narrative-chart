@@ -93,22 +93,39 @@
 
 
 
+
+
   ))
+
+
+(defn window-resize [state]
+  (.addEventListener
+   js/window "resize"
+   (fn []
+     (om/transact! state
+                   #(assoc % :window-refresh (inc (:window-refresh @state)))))))
+
+
 
 (defn data-changing
   [old new]
+  (prn "in data-changing")
+  (prn (:window-refresh old) (:window-refresh new))
   (or
    (not= (:mergedJournal old) (:mergedJournal new))
    (not= (:window-refresh old) (:window-refresh new))))
 
 
 (defn neighborhood-narrative [state owner]
-  "D3 / Om  integration - using [om-sente](https://github.com/seancorfield/om-sente/) as a
-  starting point."
+  "D3 / Om  integration"
   (reify
     om/IDisplayName
     (display-name [_]
                   "neighborhood-narrative")
+
+    om/IWillMount
+    (will-mount [_]
+                (window-resize state))
 
     om/IDidMount
     (did-mount [this]

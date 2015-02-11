@@ -16,7 +16,8 @@
 (def app-state (atom {:page {}
                       :neighborhood {}
                       :mergedJournal []
-                      :processQueue cljs.core.PersistentQueue.EMPTY}))
+                      :processQueue cljs.core.PersistentQueue.EMPTY
+                      :window-refresh 0}))
 
 
 ;; initial state will eventually be loaded from data passed
@@ -39,8 +40,8 @@
 ;;               design.fed.wiki.org
 ;;               tug.fed.wiki.org
 
-;(data/set-slug app-state "chorus-of-voices")
-(data/set-slug app-state "testing")
+(data/set-slug app-state "chorus-of-voices")
+;(data/set-slug app-state "testing")
 
 (data/add-neighbor app-state "localhost:3000")
 ;(data/add-neighbor app-state "ward.fed.wiki.org")
@@ -74,3 +75,5 @@
 
 (journal/build-neighborhood-journal app-state)
 
+;;(print (:window-refresh @app-state))
+;;(print @app-state)

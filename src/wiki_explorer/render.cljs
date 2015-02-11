@@ -1,8 +1,12 @@
 (ns wiki-explorer.render
-  (:require [om.core :as om :include-macros true]
-            [om.dom :as dom :include-macros true]))
+  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require [cljs.core.async :as async :refer [put! chan <!]]
+            [om.core :as om :include-macros true]
+            [om.dom :as dom :include-macros true]
+            [goog.events :as events]))
 
 ;; ### Render the page footer - neighborhood bar
+
 
 (defn neighbor-view [neighbor owner]
   (reify
@@ -93,7 +97,9 @@
 
 (defn data-changing
   [old new]
-  (not= (:mergedJournal old) (:mergedJournal new)))
+  (or
+   (not= (:mergedJournal old) (:mergedJournal new))
+   (not= (:window-refresh old) (:window-refresh new))))
 
 
 (defn neighborhood-narrative [state owner]
@@ -103,18 +109,21 @@
     om/IDisplayName
     (display-name [_]
                   "neighborhood-narrative")
+
     om/IDidMount
     (did-mount [this]
-;; don't do anything if the merged journal is empty
+               ;; don't do anything if the merged journal is empty
                (if (not-empty (:mergedJournal state))
                  (narrative-view state)))
+
     om/IDidUpdate
     (did-update [this prev-props prev-state]
-;; only update if the merged journal has changed
+                ;; only update if the merged journal has changed
                 (when (data-changing prev-props state)
                   (if (not-empty (:mergedJournal prev-props))
                     (.remove (.-firstChild (om/get-node owner "d3-node"))))
                   (narrative-view state)))
+
     om/IRender
     (render [this]
             (dom/div #js {:className "neighborhood-narrative"
@@ -123,9 +132,8 @@
                                 :id "d3-node"}))))
 
 
+
 ;; below here is a scratch pad for testing things...
-
-
 
 
 

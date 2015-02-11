@@ -32,15 +32,6 @@ lein new mies-om wiki-explorer
 1. We open index.html with a browser (Google Chrome is recommended, but any that has support for source maps is good).
 
 
-## User Interface
 
-The explorer consists of 2 windows:
-
-1. a neibourhood chart: this displays the interaction between a pages twins over time.
-
-1. a page history view: displays a page at a particual point of time.
-
-
-## Data Objects
 
 

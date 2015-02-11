@@ -2,11 +2,11 @@
   :description "Federated Wiki Explorer: explore a page's twins in a federated wiki neighbourhood, and how they related."
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2371"]
+                 [org.clojure/clojurescript "0.0-2816"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [om "0.7.3"]
-                 [cljs-http "0.1.20"]
-                 [com.cognitect/transit-cljs "0.8.192"]]
+                 [cljs-http "0.1.25"]
+                 [com.cognitect/transit-cljs "0.8.205"]]
 
   :plugins [[lein-cljsbuild "1.0.3"]]
 

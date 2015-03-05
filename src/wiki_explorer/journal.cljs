@@ -12,7 +12,8 @@
             [cljs.core.async :as async :refer [<! >! chan close!]]
             [clojure.walk :as walk]
             [goog.net.XhrIo :as xhr]
-            [wiki-explorer.data :as data]))
+            [wiki-explorer.data :as data]
+            [cuerdas.core :as str]))
 
 ;; Processing the journal data is broken up into a number of steps.
 ;; Starting with fetching the page from the server.
@@ -125,12 +126,20 @@
         (recur (drop-last journalData)
                (do
                  (set-curr-site next-site)
-               (if (= (:type (last journalData)) "fork")
-                 (do
-                   (set-next-site (:fork-from (last journalData)))
-                   (data/add-neighbor state next-site)
-                   (prn "fork from : " next-site)))
-               (conj acc (assoc (last journalData) :site curr-site))))))))
+                 (if (= (:type (last journalData)) "fork")
+                   (do
+                     ;;
+                     ;; need to add check from missing fork-from
+                     (if-not (nil? (:fork-from (last journalData)))
+                       ;; fork-from not null
+                       (do
+                         (set-next-site (:fork-from (last journalData)))
+                         (data/add-neighbor state next-site))
+                       ;; fork-from is null - check for already forked from local
+                       (do
+                         (if-not (str/endswith? next-site ":local")
+                           (set-next-site (str next-site ":local")))))))
+                 (conj acc (assoc (last journalData) :site curr-site))))))))
 
 
 ;; ### Merge the current journal into the neighborhood journal

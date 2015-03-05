@@ -6,7 +6,8 @@
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [om "0.7.3"]
                  [cljs-http "0.1.25"]
-                 [com.cognitect/transit-cljs "0.8.205"]]
+                 [com.cognitect/transit-cljs "0.8.205"]
+                 [cuerdas "0.3.0"]]
 
   :plugins [[lein-cljsbuild "1.0.3"]]
 

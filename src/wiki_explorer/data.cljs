@@ -28,7 +28,7 @@
 
   (if-not (contains? (:neighborhood @appState) newNeighbor)
     (do
-      (swap! appState update-in [:neighborhood] conj {newNeighbor {:site newNeighbor :state "wait"}})
+      (swap! appState update-in [:neighborhood] conj {newNeighbor {:site newNeighbor :state "wait" :y (inc (count (:neighborhood @appState)))}})
       (swap! appState update-in [:processQueue] conj newNeighbor))))
 
 (defn change-neighbor-state

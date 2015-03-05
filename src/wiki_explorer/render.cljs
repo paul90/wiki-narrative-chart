@@ -3,7 +3,8 @@
   (:require [cljs.core.async :as async :refer [put! chan <!]]
             [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
-            [goog.events :as events]))
+            [goog.events :as events]
+            [cuerdas.core :as str]))
 
 ;; ### Render the page footer - neighborhood bar
 
@@ -52,19 +53,24 @@
                   :width (.. js/document (getElementById "d3-node") -offsetWidth)
                   :height (.. js/document (getElementById "d3-node") -offsetHeight)}))
 
+(def last-points (atom {}))
+
 (defn narrative-view
   [state]
-  (prn "in narrative-view")
+
   (set-page-size)
-  (prn page-size)
+  (reset! last-points)
   (let [m (:margin page-size)
 
         h (- (:height page-size) (* m 2))
         w (- (:width page-size) (* m 2))
 
+        n (inc (count (:neighborhood state)))
+
 
         startDate (js/Date. (:date (first (:mergedJournal state))))
         endDate (js/Date. (:date (last (:mergedJournal state))))
+
 
         x-scale (.. js/d3 -time scale
                     (range #js [0, w])
@@ -74,6 +80,10 @@
         x-axis (.. js/d3 -svg axis
                    (scale x-scale)
                    (orient "bottom"))
+
+        y-scale (.. js/d3 -scale linear
+                    (range #js [(+ 0 m) (- h m)])
+                    (domain #js [n 0]))
 
 
         svg (.. js/d3 (select "#d3-node")
@@ -89,6 +99,38 @@
         (attr #js {:class "x axis"})
         (attr #js {:transform (str "translate(0," h ")")} )
         (call x-axis))
+
+    (loop [journalData (:mergedJournal state)]
+      (when (not (empty? journalData))
+
+        (.. g (append "circle")
+            (attr #js {"cx" (x-scale (:date (first journalData)))})
+            (attr #js {"cy" (y-scale (- (:y (val (find (:neighborhood state) (str/strip-suffix (:site (first journalData)) ":local"))))
+                                        (if (str/endswith? (:site (first journalData)) ":local") 0.25)))})
+            (attr #js {"r" 3}))
+
+
+
+        (if (get @last-points (:site (first journalData)))
+          (.. g (append "path")
+              (attr #js {"d" (str "M" (:x (get @last-points (:site (first journalData)))) "," (:y (get @last-points (:site (first journalData))))
+                                  "L" (x-scale (:date (first journalData))) "," (y-scale (- (:y (val (find (:neighborhood state) (str/strip-suffix (:site (first journalData)) ":local"))))
+                                                                                            (if (str/endswith? (:site (first journalData)) ":local") 0.25))))})
+              (attr #js {"style" "stroke: black; stroke-width: 1px"})))
+
+        (if (:fork-from (first journalData))
+          (.. g (append "path")
+              (attr #js {"d" (str "M" (:x (get @last-points (:fork-from (first journalData)))) "," (:y (get @last-points (:fork-from (first journalData))))
+                                  "L" (x-scale (:date (first journalData))) "," (y-scale (- (:y (val (find (:neighborhood state) (str/strip-suffix (:site (first journalData)) ":local"))))
+                                                                                            (if (str/endswith? (:site (first journalData)) ":local") 0.25))))})
+              (attr #js {"style" "stroke: red; stroke-width: 1px"})))
+
+
+        (swap! last-points assoc-in [(:site (first journalData))] {:x (x-scale (:date (first journalData)))
+                                                                   :y (y-scale (- (:y (val (find (:neighborhood state) (str/strip-suffix (:site (first journalData)) ":local"))))
+                                                                                  (if (str/endswith? (:site (first journalData)) ":local") 0.25)))})
+
+        (recur (rest journalData))))
 
 
 
@@ -109,8 +151,6 @@
 
 (defn data-changing
   [old new]
-  (prn "in data-changing")
-  (prn (:window-refresh old) (:window-refresh new))
   (or
    (not= (:mergedJournal old) (:mergedJournal new))
    (not= (:window-refresh old) (:window-refresh new))))

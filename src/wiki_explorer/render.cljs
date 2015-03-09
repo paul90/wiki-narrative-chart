@@ -71,7 +71,35 @@
      (om/transact! state
                    #(assoc % :window-refresh (inc (:window-refresh @state)))))))
 
+(defn render-journalEvent [state owner]
+  (reify
+    om/IDisplayName
+    (display-name [_]
+                  "journalEvent")
 
+    om/IDidMount
+    (did-mount [this]
+
+
+               (.setAttribute (om.core/get-node owner)
+                              "onmouseover"
+                              (str "evt.target.setAttribute('fill', 'red'); "
+                                   "evt.target.setAttribute('stroke', 'red');"))
+
+
+               (.setAttribute (om.core/get-node owner)
+                              "onmouseout"
+                              "evt.target.setAttribute('fill', 'black');
+                               evt.target.setAttribute('stroke', 'black');"))
+
+    om/IRender
+    (render [this]
+
+            (dom/circle #js {:cx (:x state)
+                             :cy (:y state)
+                             :r 3
+                             :stroke "black"
+                             :fill "black"}))))
 
 
 (defn render-journalEntry [state owner]
@@ -101,14 +129,11 @@
               (swap! last-points assoc-in [(:site state)] {:x x :y y})
 
               (dom/g nil
-                     (dom/circle #js {:cx x
-                                      :cy y
-                                      :r 3
-                                      :stroke "black"})
-
+                     ; if this event is a fork we draw a curve from point the page is forked from.
                      (if (= (:type state) "fork")
+                       ; check that we have a previous point - there is a rare case we don't.
                        (if (number? forkX)
-                         (dom/path #js {:d (str "M" forkX "," forkY
+                         (dom/path #js {:d (str "M" (+ 3 forkX) "," forkY
                                                 "C" (+ (* forkX (- 1 0.5)) (* x 0.5)) "," forkY
                                                 " " (+ (* forkX (- 1 0.5)) (* x 0.5)) "," y
                                                 " " x "," y)
@@ -116,17 +141,22 @@
                                         :stroke (:color state)
                                         :strokeWidth "2px"})))
 
+                     ; is there a previous point for this line?
                      (if (number? lastX)
-
-                         (dom/line #js {:x1 lastX
+                       ; if there is, draw a line from it
+                       (dom/line #js {:x1 (+ 3 lastX)
                                         :y1 lastY
                                         :x2 (:x state)
                                         :y2 (:y state)
                                         :stroke (:color state)
                                         :strokeWidth "2px"})
+                       ; if not, draw the sitename
                        (dom/text #js {:x (- x (:margin page-size))
                                       :y (- y 10)}
-                                 (:site state))))))))
+                                 (:site state)))
+
+                     ; drawing the actual event is broken out so we can add some interaction
+                     (om/build render-journalEvent {:x x :y y :je state}))))))
 
 
 

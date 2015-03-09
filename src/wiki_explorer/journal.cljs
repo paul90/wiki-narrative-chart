@@ -27,6 +27,12 @@
 ;;
 (def ^:dynamic done "waiting")
 
+(def ^:dynamic page-title "")
+
+(defn set-title
+  [title]
+  (def page-title title))
+
 (def ^:dynamic page-journal [])
 
 (defn set-journal
@@ -41,7 +47,9 @@
    (let [response (<! (http/get url {:with-credentials? false}))]
      (def done (:success response))
      (if done
-       (set-journal (:journal (:body response)))))))
+       (do
+         (set-journal (:journal (:body response)))
+         (set-title (:title (:body response))))))))
 
 
 ;; ### Rename data keys for fork events
@@ -193,6 +201,7 @@
            ;; we change the state of the neighbor we are process to indicate we have started processing
            ;; the journal data - the site icon will spin faster...
            (data/change-neighbor-state state currentSite "process")
+           (data/set-title state page-title)
            (->> page-journal
                 (rename-site-key)
                 (add-missing-dates)
@@ -214,6 +223,4 @@
 
 
 ;; below here is some trials, to get the code right...
-
-
 

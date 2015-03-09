@@ -18,16 +18,14 @@ body{
     top: 0px;
     left: 0px;
     right: 0px;
-    bottom: 60px;
+    bottom: 40px;
     position: absolute;
     margin: 0px;
-    width: 100%;
 }
 
 .neighborhood-narrative {
     padding: 0px;
     margin: 8px;
-    height: 100%;
     background: #FFFAFA;
     border: 1px solid #eee;
 }
@@ -89,15 +87,6 @@ footer {
 @keyframes rotatecw { 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 
 
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #555;
-  shape-rendering: crispEdges;
-}
 
-.axis text {
-  line-height 0.8;
-  fill: #555;
-}
+
 

@@ -14,7 +14,11 @@
 
   (swap! appState update-in [:page] conj {:slug pageSlug}))
 
-;  (set! (.-title js/document) "Chorus of Voices")
+(defn set-title
+  "Add the page tile to the application state"
+  [appState pageTitle]
+
+  (swap! appState update-in [:page] conj {:title pageTitle}))
 
 
 

@@ -16,10 +16,10 @@
                   "neighbor")
     om/IRender
     (render [this]
-            (dom/span #js {:className "neighbor"}
-                      (dom/div #js {:className (:state neighbor)}
-                               (dom/img #js {:src (str "http://" (:site neighbor) "/favicon.png")
-                                             :title (:site neighbor)}))))))
+            (dom/div #js {:className "neighbor"}
+                     (dom/img #js {:className (:state neighbor)
+                                   :src (str "http://" (:site neighbor) "/favicon.png")
+                                   :title (:site neighbor)})))))
 
 
 (defn neighborhood-view [state owner]
@@ -36,12 +36,6 @@
 
 ;; ### Render the page narrative chart
 
-;; we need to keep track of some details about each site:
-;; * the colour of the line we are drawing,
-;; * the end of the line we are drawing.
-;;
-(def ^:dynamic site {})
-
 ;; tracking the size of the area for the narrative chart - so we can redraw if/when the page is
 ;; resized
 
@@ -49,96 +43,26 @@
 
 (defn set-page-size
   []
-  (def page-size {:margin 60
-                  :width (.. js/document (getElementById "d3-node") -offsetWidth)
-                  :height (.. js/document (getElementById "d3-node") -offsetHeight)}))
+  (def page-size {:margin 20
+                  :width (.. js/document (getElementById "neighborhood-narrative") -offsetWidth)
+                  :height (.. js/document (getElementById "neighborhood-narrative") -offsetHeight)}))
+
+; tracking the last point we drawn for each site in the neighbourhood. So, we know where to
+; draw the next point from.
 
 (def last-points (atom {}))
 
-(defn narrative-view
-  [state]
+(def site-colors ["#1f77b4" "#ff7f0e" "#2ca02c" "#d62728" "#9467bd" "#8c564b" "#e377c2" "#7f7f7f" "#bcbd22" "#17becf"])
 
-  (set-page-size)
-  (reset! last-points)
-  (let [m (:margin page-size)
+(def local-colors ["#aec7e8" "#ffbb78" "#98df8a" "#ff9896" "#c5b0d5" "#c49c94" "#f7b6d2" "#c7c7c7" "#dbdb8d" "#9edae5"])
 
-        h (- (:height page-size) (* m 2))
-        w (- (:width page-size) (* m 2))
-
-        n (inc (count (:neighborhood state)))
-
-
-        startDate (js/Date. (:date (first (:mergedJournal state))))
-        endDate (js/Date. (:date (last (:mergedJournal state))))
-
-
-        x-scale (.. js/d3 -time scale
-                    (range #js [0, w])
-                    (domain #js [startDate endDate])
-                    (nice))
-
-        x-axis (.. js/d3 -svg axis
-                   (scale x-scale)
-                   (orient "bottom"))
-
-        y-scale (.. js/d3 -scale linear
-                    (range #js [(+ 0 m) (- h m)])
-                    (domain #js [n 0]))
-
-
-        svg (.. js/d3 (select "#d3-node")
-                (append "svg")
-                (attr #js {:width (+ w (* 2 m)) :height (+ h (* 2 m))}))
-
-
-        g (.. svg (append "g")
-              (attr #js {:transform (str "translate(" m "," m ")")}))]
-
-    ;; x-axis
-    (.. g (append "g")
-        (attr #js {:class "x axis"})
-        (attr #js {:transform (str "translate(0," h ")")} )
-        (call x-axis))
-
-    (loop [journalData (:mergedJournal state)]
-      (when (not (empty? journalData))
-
-        (.. g (append "circle")
-            (attr #js {"cx" (x-scale (:date (first journalData)))})
-            (attr #js {"cy" (y-scale (- (:y (val (find (:neighborhood state) (str/strip-suffix (:site (first journalData)) ":local"))))
-                                        (if (str/endswith? (:site (first journalData)) ":local") 0.25)))})
-            (attr #js {"r" 3}))
-
-
-
-        (if (get @last-points (:site (first journalData)))
-          (.. g (append "path")
-              (attr #js {"d" (str "M" (:x (get @last-points (:site (first journalData)))) "," (:y (get @last-points (:site (first journalData))))
-                                  "L" (x-scale (:date (first journalData))) "," (y-scale (- (:y (val (find (:neighborhood state) (str/strip-suffix (:site (first journalData)) ":local"))))
-                                                                                            (if (str/endswith? (:site (first journalData)) ":local") 0.25))))})
-              (attr #js {"style" "stroke: black; stroke-width: 1px"})))
-
-        (if (:fork-from (first journalData))
-          (.. g (append "path")
-              (attr #js {"d" (str "M" (:x (get @last-points (:fork-from (first journalData)))) "," (:y (get @last-points (:fork-from (first journalData))))
-                                  "L" (x-scale (:date (first journalData))) "," (y-scale (- (:y (val (find (:neighborhood state) (str/strip-suffix (:site (first journalData)) ":local"))))
-                                                                                            (if (str/endswith? (:site (first journalData)) ":local") 0.25))))})
-              (attr #js {"style" "stroke: red; stroke-width: 1px"})))
-
-
-        (swap! last-points assoc-in [(:site (first journalData))] {:x (x-scale (:date (first journalData)))
-                                                                   :y (y-scale (- (:y (val (find (:neighborhood state) (str/strip-suffix (:site (first journalData)) ":local"))))
-                                                                                  (if (str/endswith? (:site (first journalData)) ":local") 0.25)))})
-
-        (recur (rest journalData))))
-
-
-
-
-
-
-  ))
-
+(defn index-of
+  "returns the position of item within a collection"
+  [coll v]
+  (let [i (count (take-while #(not= v %) coll))]
+    (when (or (< i (count coll))
+            (= v (last coll)))
+      i)))
 
 (defn window-resize [state]
   (.addEventListener
@@ -149,15 +73,88 @@
 
 
 
-(defn data-changing
-  [old new]
-  (or
-   (not= (:mergedJournal old) (:mergedJournal new))
-   (not= (:window-refresh old) (:window-refresh new))))
+
+(defn render-journalEntry [state owner]
+  (reify
+    om/IDisplayName
+    (display-name [_]
+                  "journalEntry")
+
+    om/IRender
+    (render [this]
+
+            (let [x (:x state)
+                  y (:y state)
+
+                  lastX (:x (get @last-points (:site state)))
+                  lastY (:y (get @last-points (:site state)))
+
+                  forkX (if (nil? (:fork-from state))
+                          (:x (get @last-points (str (:site state) ":local")))
+                          (:x (get @last-points (:fork-from state))))
+                  forkY (if (nil? (:fork-from state))
+                          (:y (get @last-points (str (:site state) ":local")))
+                          (:y (get @last-points (:fork-from state))))]
+
+
+
+              (swap! last-points assoc-in [(:site state)] {:x x :y y})
+
+              (dom/g nil
+                     (dom/circle #js {:cx x
+                                      :cy y
+                                      :r 3
+                                      :stroke "black"})
+
+                     (if (= (:type state) "fork")
+                       (if (number? forkX)
+                         (dom/path #js {:d (str "M" forkX "," forkY
+                                                "C" (+ (* forkX (- 1 0.5)) (* x 0.5)) "," forkY
+                                                " " (+ (* forkX (- 1 0.5)) (* x 0.5)) "," y
+                                                " " x "," y)
+                                        :fill "none"
+                                        :stroke (:color state)
+                                        :strokeWidth "2px"})))
+
+                     (if (number? lastX)
+
+                         (dom/line #js {:x1 lastX
+                                        :y1 lastY
+                                        :x2 (:x state)
+                                        :y2 (:y state)
+                                        :stroke (:color state)
+                                        :strokeWidth "2px"})
+                       (dom/text #js {:x (- x (:margin page-size))
+                                      :y (- y 10)}
+                                 (:site state))))))))
+
+
+
+
+(defn calc-x-pos [je state]
+  (+ (:margin page-size)
+     (* (inc (index-of state je))
+        (/ (- (:width page-size)
+              (* 2 (:margin page-size)))
+           (inc (count state))))))
+
+(defn calc-y-pos [je state]
+  (- (+ (:margin page-size)
+        (* (- (:y (val (find state (str/strip-suffix (:site je) ":local"))))
+              (if (str/endswith? (:site je) ":local") 0.25))
+           (/ (- (:height page-size)
+                 (* 2 (:margin page-size)))
+              (inc (count state)))))
+     (if (str/endswith? (:site je) ":local") 0.25)))
+
+(defn calc-color [je state]
+  (if (str/endswith? (:site je) ":local")
+    (nth local-colors (mod (:y (val (find state (str/strip-suffix (:site je) ":local")))) 10))
+    (nth site-colors  (mod (:y (val (find state (str/strip-suffix (:site je) ":local")))) 10))))
 
 
 (defn neighborhood-narrative [state owner]
-  "D3 / Om  integration"
+  "Drawing an SVG rendering of the merged page journals."
   (reify
     om/IDisplayName
     (display-name [_]
@@ -167,30 +164,29 @@
     (will-mount [_]
                 (window-resize state))
 
-    om/IDidMount
-    (did-mount [this]
-               ;; don't do anything if the merged journal is empty
-               (if (not-empty (:mergedJournal state))
-                 (narrative-view state)))
-
-    om/IDidUpdate
-    (did-update [this prev-props prev-state]
-                ;; only update if the merged journal has changed
-                (when (data-changing prev-props state)
-                  (if (not-empty (:mergedJournal prev-props))
-                    (.remove (.-firstChild (om/get-node owner "d3-node"))))
-                  (narrative-view state)))
-
     om/IRender
     (render [this]
-            (dom/div #js {:className "neighborhood-narrative"
-                                :react-key "d3-node"
-                                :ref "d3-node"
-                                :id "d3-node"}))))
 
+            (set-page-size)
+            (reset! last-points)
+
+            (apply dom/svg #js {:width  (:width page-size)
+                          :height (:height page-size)}
+
+                   (dom/text #js {:x (/ (:width page-size) 2)
+                                  :y 20
+                                  :fontSize "18"
+                                  :textAnchor "middle"}
+                             (:title (:page state)))
+
+                   (om/build-all render-journalEntry (:mergedJournal state) {:fn #(assoc %
+                                                                                    :y (calc-y-pos % (:neighborhood state))
+                                                                                    :x (calc-x-pos % (:mergedJournal state))
+                                                                                    :color (calc-color % (:neighborhood state)))})
+
+                   ))))
 
 
 ;; below here is a scratch pad for testing things...
-
 
 

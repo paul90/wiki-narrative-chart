@@ -40,17 +40,18 @@
 ;;               design.fed.wiki.org
 ;;               tug.fed.wiki.org
 
-(data/set-slug app-state "what-the-heck-do-we-call-fedwiki-pieces")
+;(data/set-slug app-state "what-the-heck-do-we-call-fedwiki-pieces")
 ;(data/set-slug app-state "chorus-of-voices")
 ;(data/set-slug app-state "test")
 ;(data/set-slug app-state "the-hidden-history-of-online-learning")
+(data/set-slug app-state "machines-and-software")
 
 ;(data/add-neighbor app-state "localhost:3000")
 ;(data/add-neighbor app-state "ward.fed.wiki.org")
 ;(data/add-neighbor app-state "design.fed.wiki.org")
 ;(data/add-neighbor app-state "tug.fed.wiki.org")
-(data/add-neighbor app-state "machines.hapgood.net")
-;(data/add-neighbor app-state "hhol.mike.fed.wiki.org")
+;(data/add-neighbor app-state "machines.hapgood.net")
+(data/add-neighbor app-state "hhol.mike.fed.wiki.org")
 
 
 ;; we render a status bar with the site icons for the sites in the neighborhood. Their state om/will
@@ -81,3 +82,8 @@
 
 ;;(print (:neighborhood @app-state))
 ;;(print @app-state)
+
+;;(print (count (:mergedJournal @app-state)))
+
+
+

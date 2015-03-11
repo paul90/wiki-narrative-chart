@@ -1,0 +1,29 @@
+{
+  "name": "wiki-plugin-narrative-chart",
+  "version": "0.1.0",
+  "description": "Federated Wiki - Narrative Chart",
+  "keywords": [
+    "wiki",
+    "federated wiki",
+    "narrative view",
+    "alternative view"
+  ],
+  "author": {
+    "name": "Paul Rodwell",
+    "email": "paul.rodwell@btinternet.com",
+    "url": "http://fedwiki.rodwell.me"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/paul90/wiki-narrative-chart/blob/master/LICENSE.txt"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/paul90/wiki-narrative-chart"
+  },
+  "bugs": {
+    "url": "https://github.com/paul90/wiki-narrative-chart/issues"
+  }
+}

@@ -1,4 +1,4 @@
-(ns wiki-explorer.render
+(ns wiki-narrative-chart.render
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [put! chan <!]]
             [om.core :as om :include-macros true]
@@ -71,6 +71,27 @@
      (om/transact! state
                    #(assoc % :window-refresh (inc (:window-refresh @state)))))))
 
+(defn calc-x-pos [je state]
+    (+ (:margin page-size)
+       (* (inc (index-of state je))
+          (/ (- (:width page-size)
+                (* 2 (:margin page-size)))
+             (inc (count state))))))
+
+(defn calc-y-pos [je state]
+  (- (+ (:margin page-size)
+        (* (- (:y (val (find state (str/strip-suffix (:site je) ":local"))))
+              (if (str/endswith? (:site je) ":local") 0.25))
+           (/ (- (:height page-size)
+                 (* 2 (:margin page-size)))
+              (inc (count state)))))
+     (if (str/endswith? (:site je) ":local") 0.25)))
+
+(defn calc-color [je state]
+  (if (str/endswith? (:site je) ":local")
+    (nth local-colors (mod (:y (val (find state (str/strip-suffix (:site je) ":local")))) 10))
+    (nth site-colors  (mod (:y (val (find state (str/strip-suffix (:site je) ":local")))) 10))))
+
 (defn render-journalEvent [state owner]
   (reify
     om/IDisplayName
@@ -80,12 +101,10 @@
     om/IDidMount
     (did-mount [this]
 
-
                (.setAttribute (om.core/get-node owner)
                               "onmouseover"
                               (str "evt.target.setAttribute('fill', 'red'); "
                                    "evt.target.setAttribute('stroke', 'red');"))
-
 
                (.setAttribute (om.core/get-node owner)
                               "onmouseout"
@@ -124,9 +143,7 @@
                           (:y (get @last-points (str (:site state) ":local")))
                           (:y (get @last-points (:fork-from state))))]
 
-
-
-              (swap! last-points assoc-in [(:site state)] {:x x :y y})
+              (if-not (nil? state)(swap! last-points assoc-in [(:site state)] {:x x :y y}))
 
               (dom/g nil
                      ; if this event is a fork we draw a curve from point the page is forked from.
@@ -139,7 +156,7 @@
                                                 " " x "," y)
                                         :fill "none"
                                         :stroke (:color state)
-                                        :strokeWidth "2px"})))
+                                        :strokeWidth "3px"})))
 
                      ; is there a previous point for this line?
                      (if (number? lastX)
@@ -149,38 +166,23 @@
                                         :x2 (:x state)
                                         :y2 (:y state)
                                         :stroke (:color state)
-                                        :strokeWidth "2px"})
+                                        :strokeWidth "3px"})
                        ; if not, draw the sitename
                        (dom/text #js {:x (- x (:margin page-size))
-                                      :y (- y 10)}
-                                 (:site state)))
+                                        :y (- y 10)}
+                                   (:site state)))
+
+                     ; draw line to present
+                     (if-not (str/endswith? (:site state) ":local")
+                     (dom/line #js {:x1 x
+                                    :y1 y
+                                    :x2 (- (:width page-size) (:margin page-size))
+                                    :y2 y
+                                    :stroke (:color state)
+                                    :strokeWidth "1px"}))
 
                      ; drawing the actual event is broken out so we can add some interaction
                      (om/build render-journalEvent {:x x :y y :je state}))))))
-
-
-
-
-(defn calc-x-pos [je state]
-  (+ (:margin page-size)
-     (* (inc (index-of state je))
-        (/ (- (:width page-size)
-              (* 2 (:margin page-size)))
-           (inc (count state))))))
-
-(defn calc-y-pos [je state]
-  (- (+ (:margin page-size)
-        (* (- (:y (val (find state (str/strip-suffix (:site je) ":local"))))
-              (if (str/endswith? (:site je) ":local") 0.25))
-           (/ (- (:height page-size)
-                 (* 2 (:margin page-size)))
-              (inc (count state)))))
-     (if (str/endswith? (:site je) ":local") 0.25)))
-
-(defn calc-color [je state]
-  (if (str/endswith? (:site je) ":local")
-    (nth local-colors (mod (:y (val (find state (str/strip-suffix (:site je) ":local")))) 10))
-    (nth site-colors  (mod (:y (val (find state (str/strip-suffix (:site je) ":local")))) 10))))
 
 
 (defn neighborhood-narrative [state owner]
@@ -209,10 +211,12 @@
                                   :textAnchor "middle"}
                              (:title (:page state)))
 
-                   (om/build-all render-journalEntry (:mergedJournal state) {:fn #(assoc %
-                                                                                    :y (calc-y-pos % (:neighborhood state))
-                                                                                    :x (calc-x-pos % (:mergedJournal state))
-                                                                                    :color (calc-color % (:neighborhood state)))})
+                   (om/build-all render-journalEntry (:mergedJournal state)
+                                 {:fn #(if-not (= (:type %) "last")
+                                        (assoc %
+                                           :y (calc-y-pos % (:neighborhood state))
+                                           :x (calc-x-pos % (:mergedJournal state))
+                                           :color (calc-color % (:neighborhood state))))})
 
                    ))))
 

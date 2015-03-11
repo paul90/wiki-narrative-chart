@@ -1,4 +1,4 @@
-(ns wiki-explorer.data
+(ns wiki-narrative-chart.data
   "Contains functions for manipulating the application data"
   (:require [om.core :as om :include-macros true]))
 

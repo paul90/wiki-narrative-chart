@@ -5,14 +5,14 @@
 ;; view of how the page has not only changed over time, but
 ;; also how it has changed across the neighborhood.
 ;;
-(ns wiki-explorer.journal
+(ns wiki-narrative-chart.journal
   "Contains functions for manipulation of page journal data"
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs-http.client :as http]
             [cljs.core.async :as async :refer [<! >! chan close!]]
             [clojure.walk :as walk]
             [goog.net.XhrIo :as xhr]
-            [wiki-explorer.data :as data]
+            [wiki-narrative-chart.data :as data]
             [cuerdas.core :as str]))
 
 ;; Processing the journal data is broken up into a number of steps.

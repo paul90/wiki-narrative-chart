@@ -1,5 +1,8 @@
 goog.addDependency("base.js", ['goog'], []);
 goog.addDependency("../cljs/core.js", ['cljs.core'], ['goog.string', 'goog.object', 'goog.string.StringBuffer', 'goog.array']);
+goog.addDependency("../react.inc.js", ['cljsjs.react'], []);
+goog.addDependency("../om/dom.js", ['om.dom'], ['cljs.core', 'goog.object', 'cljsjs.react']);
+goog.addDependency("../om/core.js", ['om.core'], ['goog.dom', 'cljs.core', 'om.dom', 'cljsjs.react', 'goog.ui.IdGenerator']);
 goog.addDependency("../clojure/string.js", ['clojure.string'], ['goog.string', 'cljs.core', 'goog.string.StringBuffer']);
 goog.addDependency("../cljs/reader.js", ['cljs.reader'], ['goog.string', 'cljs.core', 'goog.string.StringBuffer']);
 goog.addDependency("../no/en/core.js", ['no.en.core'], ['cljs.core', 'goog.crypt.base64', 'clojure.string', 'cljs.reader']);
@@ -22,14 +25,12 @@ goog.addDependency("../cljs/core/async/impl/channels.js", ['cljs.core.async.impl
 goog.addDependency("../cljs/core/async/impl/ioc_helpers.js", ['cljs.core.async.impl.ioc_helpers'], ['cljs.core', 'cljs.core.async.impl.protocols']);
 goog.addDependency("../cljs/core/async/impl/timers.js", ['cljs.core.async.impl.timers'], ['cljs.core.async.impl.channels', 'cljs.core.async.impl.dispatch', 'cljs.core', 'cljs.core.async.impl.protocols']);
 goog.addDependency("../cljs/core/async.js", ['cljs.core.async'], ['cljs.core.async.impl.channels', 'cljs.core.async.impl.dispatch', 'cljs.core', 'cljs.core.async.impl.buffers', 'cljs.core.async.impl.protocols', 'cljs.core.async.impl.ioc_helpers', 'cljs.core.async.impl.timers']);
-goog.addDependency("../cljs_http/core.js", ['cljs_http.core'], ['goog.net.XhrIo', 'cljs.core', 'cljs_http.util', 'cljs.core.async', 'goog.net.EventType']);
+goog.addDependency("../cljs_http/core.js", ['cljs_http.core'], ['goog.net.Jsonp', 'goog.net.XhrIo', 'cljs.core', 'cljs_http.util', 'cljs.core.async', 'goog.net.EventType']);
 goog.addDependency("../cljs_http/client.js", ['cljs_http.client'], ['cljs_http.core', 'no.en.core', 'goog.Uri', 'cljs.core', 'cljs_http.util', 'cljs.core.async', 'clojure.string', 'cljs.reader']);
-goog.addDependency("../om/dom.js", ['om.dom'], ['cljs.core']);
-goog.addDependency("../om/core.js", ['om.core'], ['cljs.core', 'om.dom', 'goog.ui.IdGenerator']);
-goog.addDependency("../wiki_explorer/data.js", ['wiki_explorer.data'], ['cljs.core', 'om.core']);
 goog.addDependency("../clojure/walk.js", ['clojure.walk'], ['cljs.core']);
+goog.addDependency("../wiki_narrative_chart/data.js", ['wiki_narrative_chart.data'], ['cljs.core', 'om.core']);
 goog.addDependency("../clojure/set.js", ['clojure.set'], ['cljs.core']);
 goog.addDependency("../cuerdas/core.js", ['cuerdas.core'], ['goog.string', 'cljs.core', 'clojure.set', 'clojure.string']);
-goog.addDependency("../wiki_explorer/journal.js", ['wiki_explorer.journal'], ['goog.net.XhrIo', 'cljs.core', 'cljs_http.client', 'cljs.core.async', 'wiki_explorer.data', 'clojure.walk', 'cuerdas.core']);
-goog.addDependency("../wiki_explorer/render.js", ['wiki_explorer.render'], ['cljs.core', 'om.dom', 'cljs.core.async', 'om.core', 'goog.events', 'cuerdas.core']);
-goog.addDependency("../wiki_explorer/core.js", ['wiki_explorer.core'], ['wiki_explorer.journal', 'goog.Uri', 'cljs.core', 'om.dom', 'wiki_explorer.render', 'wiki_explorer.data', 'om.core']);
+goog.addDependency("../wiki_narrative_chart/journal.js", ['wiki_narrative_chart.journal'], ['goog.net.XhrIo', 'cljs.core', 'cljs_http.client', 'cljs.core.async', 'clojure.walk', 'wiki_narrative_chart.data', 'cuerdas.core']);
+goog.addDependency("../wiki_narrative_chart/render.js", ['wiki_narrative_chart.render'], ['cljs.core', 'om.dom', 'cljs.core.async', 'om.core', 'goog.events', 'cuerdas.core']);
+goog.addDependency("../wiki_narrative_chart/core.js", ['wiki_narrative_chart.core'], ['goog.Uri', 'cljs.core', 'om.dom', 'om.core', 'wiki_narrative_chart.journal', 'wiki_narrative_chart.data', 'cuerdas.core', 'wiki_narrative_chart.render']);

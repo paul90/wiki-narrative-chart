@@ -12,7 +12,7 @@
   :plugins [[lein-cljsbuild "1.0.3"]]
 
   :license {:name "MIT"
-            :url "https://github.com/paul90/wiki..."}
+            :url "https://github.com/paul90/wiki-narrative-chart/blob/master/LICENSE.txt"}
 
   :source-paths ["src"]
 

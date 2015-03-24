@@ -17,12 +17,13 @@ following form:
 ```
 .../dist/client/index.html#<page-name>@<site>
 ```
-Where `<page-name>` is the slug of the page you want to look at, and `<site>` the the domain to site
+
+Where `<page-name>` is the slug of the page you want to look at, and `<site>` the domain to site
 to load the page from. Multiple sites can be added by appending more `@<site>`.
 
 
-There is a pair of wiki pages that provide [further information](http://fedwiki.rodwell.me/view/visualizing-page-history/view/narrative-chart)
+There is a pair of wiki pages that provide [further information](http://fedwiki.rodwell.me/view/visualizing-page-history/view/narrative-chart).
 
 
 This add-on is developed using [ClojureScript](http://clojure.org/clojurescript), with
-[OM](https://github.com/swannodette/om) for the UI.
+[OM](https://github.com/swannodette/om).

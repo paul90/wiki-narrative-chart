@@ -4,6 +4,7 @@
             [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
             [goog.events :as events]
+            [goog.i18n.DateTimeFormat]
             [cuerdas.core :as str]))
 
 ;; ### Render the page footer - neighborhood bar
@@ -46,6 +47,10 @@
   (def page-size {:margin 20
                   :width (.. js/document (getElementById "neighborhood-narrative") -offsetWidth)
                   :height (.. js/document (getElementById "neighborhood-narrative") -offsetHeight)}))
+
+; the owner and state of the narrative view, so we can refresh later
+
+(def ^:dynamic narrative-owner)
 
 ; tracking the last point we drawn for each site in the neighbourhood. So, we know where to
 ; draw the next point from.
@@ -92,24 +97,13 @@
     (nth local-colors (mod (:y (val (find state (str/strip-suffix (:site je) ":local")))) 10))
     (nth site-colors  (mod (:y (val (find state (str/strip-suffix (:site je) ":local")))) 10))))
 
+
+
 (defn render-journalEvent [state owner]
   (reify
     om/IDisplayName
     (display-name [_]
                   "journalEvent")
-
-    om/IDidMount
-    (did-mount [this]
-
-               (.setAttribute (om.core/get-node owner)
-                              "onmouseover"
-                              (str "evt.target.setAttribute('fill', 'red'); "
-                                   "evt.target.setAttribute('stroke', 'red');"))
-
-               (.setAttribute (om.core/get-node owner)
-                              "onmouseout"
-                              "evt.target.setAttribute('fill', 'black');
-                               evt.target.setAttribute('stroke', 'black');"))
 
     om/IRender
     (render [this]
@@ -118,7 +112,9 @@
                              :cy (:y state)
                              :r 3
                              :stroke "black"
-                             :fill "black"}))))
+                             :fill "black"}
+                        (dom/title nil
+                                   (str (:type (:je state)) " : " (.format (goog.i18n.DateTimeFormat. "EEE MMM d, yyyy H:mm") (js/Date. (:date (:je state))))))))))
 
 
 (defn render-journalEntry [state owner]
@@ -201,6 +197,9 @@
 
             (set-page-size)
             (reset! last-points)
+
+            (def narrative-owner owner)
+            (def narrative-state state)
 
             (apply dom/svg #js {:width  (:width page-size)
                           :height (:height page-size)}

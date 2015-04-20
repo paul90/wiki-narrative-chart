@@ -87,6 +87,9 @@ footer {
 @keyframes rotatecw { 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 
 
-
+circle:hover {
+  fill: red;
+  stroke: red;
+}
 
 

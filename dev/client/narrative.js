@@ -32,5 +32,5 @@ goog.addDependency("../wiki_narrative_chart/data.js", ['wiki_narrative_chart.dat
 goog.addDependency("../clojure/set.js", ['clojure.set'], ['cljs.core']);
 goog.addDependency("../cuerdas/core.js", ['cuerdas.core'], ['goog.string', 'cljs.core', 'clojure.set', 'clojure.string']);
 goog.addDependency("../wiki_narrative_chart/journal.js", ['wiki_narrative_chart.journal'], ['goog.net.XhrIo', 'cljs.core', 'cljs_http.client', 'cljs.core.async', 'clojure.walk', 'wiki_narrative_chart.data', 'cuerdas.core']);
-goog.addDependency("../wiki_narrative_chart/render.js", ['wiki_narrative_chart.render'], ['cljs.core', 'om.dom', 'cljs.core.async', 'om.core', 'goog.events', 'cuerdas.core']);
+goog.addDependency("../wiki_narrative_chart/render.js", ['wiki_narrative_chart.render'], ['cljs.core', 'goog.i18n.DateTimeFormat', 'om.dom', 'cljs.core.async', 'om.core', 'goog.events', 'cuerdas.core']);
 goog.addDependency("../wiki_narrative_chart/core.js", ['wiki_narrative_chart.core'], ['goog.Uri', 'cljs.core', 'om.dom', 'om.core', 'wiki_narrative_chart.journal', 'wiki_narrative_chart.data', 'cuerdas.core', 'wiki_narrative_chart.render']);

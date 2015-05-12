@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html><head><meta charset="utf-8" content="text/html" http-equiv="Content-Type" /><meta content="Federated Wiki Explorer: explore a page's twins in a federated wiki neighbourhood, and how they related." name="description" /><style type="text/css">/**
+<html><head><meta charset="utf-8" content="text/html" http-equiv="Content-Type" /><meta content="Federated Wiki Narrative Chart: explore a page's twins in a federated wiki neighbourhood, and how they related." name="description" /><style type="text/css">/**
  * SyntaxHighlighter
  * http://alexgorbatchev.com/SyntaxHighlighter
  *
@@ -2865,15 +2865,16 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>wiki-explorer -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">wiki-explorer</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Federated Wiki Explorer: explore a page's twins in a federated wiki neighbourhood, and how they related.</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.6.0</td></tr><tr><td class="dep-name">org.clojure/clojurescript</td><td class="dotted"><hr /></td><td class="dep-version">0.0-2816</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.346.0-17112a-alpha</td></tr><tr><td class="dep-name">om</td><td class="dotted"><hr /></td><td class="dep-version">0.7.3</td></tr><tr><td class="dep-name">cljs-http</td><td class="dotted"><hr /></td><td class="dep-version">0.1.25</td></tr><tr><td class="dep-name">com.cognitect/transit-cljs</td><td class="dotted"><hr /></td><td class="dep-version">0.8.205</td></tr><tr><td class="dep-name">cuerdas</td><td class="dotted"><hr /></td><td class="dep-version">0.3.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#wiki-explorer.core">wiki-explorer.core</a></li><li><a href="#wiki-explorer.data">wiki-explorer.data</a></li><li><a href="#wiki-explorer.journal">wiki-explorer.journal</a></li><li><a href="#wiki-explorer.render">wiki-explorer.render</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#wiki-explorer.core" name="wiki-explorer.core"><h1 class="project-name">wiki-explorer.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(ns wiki-explorer.core
+</script><title>wiki-narrative-chart -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">wiki-narrative-chart</h1><h2 class="project-version">0.1.0</h2><br /><p>Federated Wiki Narrative Chart: explore a page's twins in a federated wiki neighbourhood, and how they related.</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.6.0</td></tr><tr><td class="dep-name">org.clojure/clojurescript</td><td class="dotted"><hr /></td><td class="dep-version">0.0-3211</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.346.0-17112a-alpha</td></tr><tr><td class="dep-name">org.omcljs/om</td><td class="dotted"><hr /></td><td class="dep-version">0.8.8</td></tr><tr><td class="dep-name">cljs-http</td><td class="dotted"><hr /></td><td class="dep-version">0.1.30</td></tr><tr><td class="dep-name">cuerdas</td><td class="dotted"><hr /></td><td class="dep-version">0.3.2</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#wiki-narrative-chart.core">wiki-narrative-chart.core</a></li><li><a href="#wiki-narrative-chart.data">wiki-narrative-chart.data</a></li><li><a href="#wiki-narrative-chart.journal">wiki-narrative-chart.journal</a></li><li><a href="#wiki-narrative-chart.render">wiki-narrative-chart.render</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#wiki-narrative-chart.core" name="wiki-narrative-chart.core"><h1 class="project-name">wiki-narrative-chart.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns wiki-narrative-chart.core
   (:refer-clojure :exclude [filter])
   (:require [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
-            [wiki-explorer.data :as data]
-            [wiki-explorer.render :as render]
-            [wiki-explorer.journal :as journal])
+            [cuerdas.core :as str]
+            [wiki-narrative-chart.data :as data]
+            [wiki-narrative-chart.render :as render]
+            [wiki-narrative-chart.journal :as journal])
   (:import [goog Uri]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(enable-console-print!)</pre></td></tr><tr><td class="docs"><h2>Application State</h2>
 </td><td class="codes"></td></tr><tr><td class="docs">
@@ -2881,34 +2882,16 @@ net.brehaut.ClojureTools = (function (SH) {
                       :neighborhood {}
                       :mergedJournal []
                       :processQueue cljs.core.PersistentQueue.EMPTY
-                      :window-refresh 0}))</pre></td></tr><tr><td class="docs"><p>initial state will eventually be loaded from data passed
-in the url.</p>
-
-<p>the page location is
-    (.-location js/window)</p>
-
-<p>the page fragment can be extracted using closure Uri
-    (.getFragment (Uri. (.-href (.-location js/window))))</p>
-
-<p>But for now...</p>
-
-<p>some testdata using a local test wiki as the starting point</p>
-
-<p>page:         'chorus-of-voices'
-neighborhood: localhost:3000
-              ward.fed.wiki.org
-              design.fed.wiki.org
-              tug.fed.wiki.org</p>
-</td><td class="codes"></td></tr><tr><td class="docs"><p>(data/set-slug app-state "what-the-heck-do-we-call-fedwiki-pieces")
-(data/set-slug app-state "chorus-of-voices")</p>
-</td><td class="codes"><pre class="brush: clojure">(data/set-slug app-state &quot;test&quot;)</pre></td></tr><tr><td class="docs"><p>(data/set-slug app-state "the-hidden-history-of-online-learning")</p>
+                      :window-refresh 0}))</pre></td></tr><tr><td class="docs"><p>we expect the page location to contain the page slug followed by a list of one or more sites, each
+site prefixed by a '@'.</p>
 </td><td class="codes"></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(data/add-neighbor app-state &quot;localhost:3000&quot;)</pre></td></tr><tr><td class="docs"><p>(data/add-neighbor app-state "ward.fed.wiki.org")
-(data/add-neighbor app-state "design.fed.wiki.org")
-(data/add-neighbor app-state "tug.fed.wiki.org")
-(data/add-neighbor app-state "machines.hapgood.net")
-(data/add-neighbor app-state "hhol.mike.fed.wiki.org")</p>
-</td><td class="codes"></td></tr><tr><td class="docs"><p>we render a status bar with the site icons for the sites in the neighborhood. Their state om/will
+</td><td class="codes"><pre class="brush: clojure">(let [slug (first (str/split (.getFragment (Uri. (.-href (.-location js/window)))) &quot;@&quot; ))
+      sites (rest (str/split (.getFragment (Uri. (.-href (.-location js/window)))) &quot;@&quot; ))]
+
+  (data/set-slug app-state slug)
+
+  (doseq [site sites]
+    (data/add-neighbor app-state site)))</pre></td></tr><tr><td class="docs"><p>we render a status bar with the site icons for the sites in the neighborhood. Their state om/will
 change as they are processed, but reflecting this in the interface just happens.</p>
 </td><td class="codes"><pre class="brush: clojure">(om/root
    render/neighborhood-view
@@ -2926,13 +2909,17 @@ and process the journal into the form we want, and merge it into the growning <c
 </td><td class="codes"></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(journal/build-neighborhood-journal app-state)</pre></td></tr><tr><td class="docs"><p>(print (:neighborhood @app-state))
 (print @app-state)</p>
-</td><td class="codes"></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#wiki-explorer.data" name="wiki-explorer.data"><h1 class="project-name">wiki-explorer.data</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Contains functions for manipulating the application data</p>
-</td><td class="codes"><pre class="brush: clojure">(ns wiki-explorer.data
+</td><td class="codes"></td></tr><tr><td class="docs"><p>(conj (vec (:mergedJournal @app-state)) {:type "last"})</p>
+</td><td class="codes"></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#wiki-narrative-chart.data" name="wiki-narrative-chart.data"><h1 class="project-name">wiki-narrative-chart.data</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Contains functions for manipulating the application data</p>
+</td><td class="codes"><pre class="brush: clojure">(ns wiki-narrative-chart.data
   (:require [om.core :as om :include-macros true]))</pre></td></tr><tr><td class="docs"><p>Page:</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>Add the page slug to the application state</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-slug
   [appState pageSlug]
-  (swap! appState update-in [:page] conj {:slug pageSlug}))</pre></td></tr><tr><td class="docs"><p>Neighborhood:</p>
+  (swap! appState update-in [:page] conj {:slug pageSlug}))</pre></td></tr><tr><td class="docs"><p>Add the page tile to the application state</p>
+</td><td class="codes"><pre class="brush: clojure">(defn set-title
+  [appState pageTitle]
+  (swap! appState update-in [:page] conj {:title pageTitle}))</pre></td></tr><tr><td class="docs"><p>Neighborhood:</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>Add a new Neighbor to the Neighborhood, if not already added</p>
 </td><td class="codes"><pre class="brush: clojure">(defn add-neighbor
   [appState newNeighbor]
@@ -2942,7 +2929,7 @@ and process the journal into the form we want, and merge it into the growning <c
       (swap! appState update-in [:processQueue] conj newNeighbor))))</pre></td></tr><tr><td class="docs"><p>Change the state of a neighbor</p>
 </td><td class="codes"><pre class="brush: clojure">(defn change-neighbor-state
   [appState site siteState]
-  (swap! appState assoc-in [:neighborhood site :state] siteState))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#wiki-explorer.journal" name="wiki-explorer.journal"><h1 class="project-name">wiki-explorer.journal</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Contains functions for manipulation of page journal data</p>
+  (swap! appState assoc-in [:neighborhood site :state] siteState))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#wiki-narrative-chart.journal" name="wiki-narrative-chart.journal"><h1 class="project-name">wiki-narrative-chart.journal</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Contains functions for manipulation of page journal data</p>
 
 <h2>Merging Page Journals</h2>
 
@@ -2950,13 +2937,13 @@ and process the journal into the form we want, and merge it into the growning <c
 neighborhood it is possible to merge them to construct a
 view of how the page has not only changed over time, but
 also how it has changed across the neighborhood.</p>
-</td><td class="codes"><pre class="brush: clojure">(ns wiki-explorer.journal
+</td><td class="codes"><pre class="brush: clojure">(ns wiki-narrative-chart.journal
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs-http.client :as http]
             [cljs.core.async :as async :refer [&lt;! &gt;! chan close!]]
             [clojure.walk :as walk]
             [goog.net.XhrIo :as xhr]
-            [wiki-explorer.data :as data]
+            [wiki-narrative-chart.data :as data]
             [cuerdas.core :as str]))</pre></td></tr><tr><td class="docs"><p>Processing the journal data is broken up into a number of steps.
 Starting with fetching the page from the server.</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><h3>Fetch Page from server</h3>
@@ -2965,6 +2952,10 @@ Starting with fetching the page from the server.</p>
 to hold the journal data, so we can wait before running the
 next step.</p>
 </td><td class="codes"><pre class="brush: clojure">(def ^:dynamic done &quot;waiting&quot;)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def ^:dynamic page-title )</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn set-title
+  [title]
+  (def page-title title))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def ^:dynamic page-journal [])</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn set-journal
   [journal]
@@ -2977,7 +2968,9 @@ next step.</p>
    (let [response (&lt;! (http/get url {:with-credentials? false}))]
      (def done (:success response))
      (if done
-       (set-journal (:journal (:body response)))))))</pre></td></tr><tr><td class="docs"><h3>Rename data keys for fork events</h3>
+       (do
+         (set-journal (:journal (:body response)))
+         (set-title (:title (:body response))))))))</pre></td></tr><tr><td class="docs"><h3>Rename data keys for fork events</h3>
 
 <p>A fork journal entry marks the forking of the page from remote site. The <code>:site</code>
 gives the name of the remote site. We rename this entry to <code>:fork-from</code> as it is
@@ -3091,6 +3084,7 @@ the site the entry was made on.</p>
            ;; we change the state of the neighbor we are process to indicate we have started processing
            ;; the journal data - the site icon will spin faster...
            (data/change-neighbor-state state currentSite &quot;process&quot;)
+           (data/set-title state page-title)
            (-&gt;&gt; page-journal
                 (rename-site-key)
                 (add-missing-dates)
@@ -3104,13 +3098,14 @@ the site the entry was made on.</p>
            (data/change-neighbor-state state currentSite &quot;fail&quot;)))
        (swap! state assoc-in [:processQueue] (pop (:processQueue @state)))
        (recur)))))</pre></td></tr><tr><td class="docs"><p>below here is some trials, to get the code right...</p>
-</td><td class="codes"></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#wiki-explorer.render" name="wiki-explorer.render"><h1 class="project-name">wiki-explorer.render</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(ns wiki-explorer.render
+</td><td class="codes"></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#wiki-narrative-chart.render" name="wiki-narrative-chart.render"><h1 class="project-name">wiki-narrative-chart.render</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns wiki-narrative-chart.render
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [put! chan &lt;!]]
             [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
             [goog.events :as events]
+            [goog.i18n.DateTimeFormat]
             [cuerdas.core :as str]))</pre></td></tr><tr><td class="docs"><h3>Render the page footer - neighborhood bar</h3>
 </td><td class="codes"></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn neighbor-view [neighbor owner]
@@ -3133,85 +3128,118 @@ the site the entry was made on.</p>
     (render [this]
             (apply dom/section #js {:className &quot;neighborhood&quot;}
                    (om/build-all neighbor-view (map val (:neighborhood state)))))))</pre></td></tr><tr><td class="docs"><h3>Render the page narrative chart</h3>
-</td><td class="codes"></td></tr><tr><td class="docs"><p>we need to keep track of some details about each site:
-* the colour of the line we are drawing,
-* the end of the line we are drawing.</p>
-</td><td class="codes"><pre class="brush: clojure">(def ^:dynamic site {})</pre></td></tr><tr><td class="docs"><p>tracking the size of the area for the narrative chart - so we can redraw if/when the page is
+</td><td class="codes"></td></tr><tr><td class="docs"><p>tracking the size of the area for the narrative chart - so we can redraw if/when the page is
 resized</p>
 </td><td class="codes"></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def ^:dynamic page-size {})</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn set-page-size
   []
-  (def page-size {:margin 60
-                  :width (.. js/document (getElementById &quot;d3-node&quot;) -offsetWidth)
-                  :height (.. js/document (getElementById &quot;d3-node&quot;) -offsetHeight)}))</pre></td></tr><tr><td class="docs">
+  (def page-size {:margin 20
+                  :width (.. js/document (getElementById &quot;neighborhood-narrative&quot;) -offsetWidth)
+                  :height (.. js/document (getElementById &quot;neighborhood-narrative&quot;) -offsetHeight)}))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def ^:dynamic narrative-owner)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def last-points (atom {}))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn narrative-view
-  [state]
-  (set-page-size)
-  (reset! last-points)
-  (let [m (:margin page-size)
-        h (- (:height page-size) (* m 2))
-        w (- (:width page-size) (* m 2))
-        n (inc (count (:neighborhood state)))
-        startDate (js/Date. (:date (first (:mergedJournal state))))
-        endDate (js/Date. (:date (last (:mergedJournal state))))
-        x-scale (.. js/d3 -time scale
-                    (range #js [0, w])
-                    (domain #js [startDate endDate])
-                    (nice))
-        x-axis (.. js/d3 -svg axis
-                   (scale x-scale)
-                   (orient &quot;bottom&quot;))
-        y-scale (.. js/d3 -scale linear
-                    (range #js [(+ 0 m) (- h m)])
-                    (domain #js [n 0]))
-        svg (.. js/d3 (select &quot;#d3-node&quot;)
-                (append &quot;svg&quot;)
-                (attr #js {:width (+ w (* 2 m)) :height (+ h (* 2 m))}))
-        g (.. svg (append &quot;g&quot;)
-              (attr #js {:transform (str &quot;translate(&quot; m &quot;,&quot; m &quot;)&quot;)}))]
-    ;; x-axis
-    (.. g (append &quot;g&quot;)
-        (attr #js {:class &quot;x axis&quot;})
-        (attr #js {:transform (str &quot;translate(0,&quot; h &quot;)&quot;)} )
-        (call x-axis))
-    (loop [journalData (:mergedJournal state)]
-      (when (not (empty? journalData))
-        (.. g (append &quot;circle&quot;)
-            (attr #js {&quot;cx&quot; (x-scale (:date (first journalData)))})
-            (attr #js {&quot;cy&quot; (y-scale (- (:y (val (find (:neighborhood state) (str/strip-suffix (:site (first journalData)) &quot;:local&quot;))))
-                                        (if (str/endswith? (:site (first journalData)) &quot;:local&quot;) 0.25)))})
-            (attr #js {&quot;r&quot; 3}))
-        (if (get @last-points (:site (first journalData)))
-          (.. g (append &quot;path&quot;)
-              (attr #js {&quot;d&quot; (str &quot;M&quot; (:x (get @last-points (:site (first journalData)))) &quot;,&quot; (:y (get @last-points (:site (first journalData))))
-                                  &quot;L&quot; (x-scale (:date (first journalData))) &quot;,&quot; (y-scale (- (:y (val (find (:neighborhood state) (str/strip-suffix (:site (first journalData)) &quot;:local&quot;))))
-                                                                                            (if (str/endswith? (:site (first journalData)) &quot;:local&quot;) 0.25))))})
-              (attr #js {&quot;style&quot; &quot;stroke: black; stroke-width: 1px&quot;})))
-        (if (:fork-from (first journalData))
-          (.. g (append &quot;path&quot;)
-              (attr #js {&quot;d&quot; (str &quot;M&quot; (:x (get @last-points (:fork-from (first journalData)))) &quot;,&quot; (:y (get @last-points (:fork-from (first journalData))))
-                                  &quot;L&quot; (x-scale (:date (first journalData))) &quot;,&quot; (y-scale (- (:y (val (find (:neighborhood state) (str/strip-suffix (:site (first journalData)) &quot;:local&quot;))))
-                                                                                            (if (str/endswith? (:site (first journalData)) &quot;:local&quot;) 0.25))))})
-              (attr #js {&quot;style&quot; &quot;stroke: red; stroke-width: 1px&quot;})))
-        (swap! last-points assoc-in [(:site (first journalData))] {:x (x-scale (:date (first journalData)))
-                                                                   :y (y-scale (- (:y (val (find (:neighborhood state) (str/strip-suffix (:site (first journalData)) &quot;:local&quot;))))
-                                                                                  (if (str/endswith? (:site (first journalData)) &quot;:local&quot;) 0.25)))})
-        (recur (rest journalData))))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def site-colors [&quot;#1f77b4&quot; &quot;#ff7f0e&quot; &quot;#2ca02c&quot; &quot;#d62728&quot; &quot;#9467bd&quot; &quot;#8c564b&quot; &quot;#e377c2&quot; &quot;#7f7f7f&quot; &quot;#bcbd22&quot; &quot;#17becf&quot;])</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def local-colors [&quot;#aec7e8&quot; &quot;#ffbb78&quot; &quot;#98df8a&quot; &quot;#ff9896&quot; &quot;#c5b0d5&quot; &quot;#c49c94&quot; &quot;#f7b6d2&quot; &quot;#c7c7c7&quot; &quot;#dbdb8d&quot; &quot;#9edae5&quot;])</pre></td></tr><tr><td class="docs"><p>returns the position of item within a collection</p>
+</td><td class="codes"><pre class="brush: clojure">(defn index-of
+  [coll v]
+  (let [i (count (take-while #(not= v %) coll))]
+    (when (or (&lt; i (count coll))
+            (= v (last coll)))
+      i)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn window-resize [state]
   (.addEventListener
    js/window &quot;resize&quot;
    (fn []
      (om/transact! state
                    #(assoc % :window-refresh (inc (:window-refresh @state)))))))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn data-changing
-  [old new]
-  (or
-   (not= (:mergedJournal old) (:mergedJournal new))
-   (not= (:window-refresh old) (:window-refresh new))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn calc-x-pos [je state]
+    (+ (:margin page-size)
+       (* (inc (index-of state je))
+          (/ (- (:width page-size)
+                (* 2 (:margin page-size)))
+             (inc (count state))))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn calc-y-pos [je state]
+  (- (+ (:margin page-size)
+        (* (- (:y (val (find state (str/strip-suffix (:site je) &quot;:local&quot;))))
+              (if (str/endswith? (:site je) &quot;:local&quot;) 0.25))
+           (/ (- (:height page-size)
+                 (* 2 (:margin page-size)))
+              (inc (count state)))))
+     (if (str/endswith? (:site je) &quot;:local&quot;) 0.25)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn calc-color [je state]
+  (if (str/endswith? (:site je) &quot;:local&quot;)
+    (nth local-colors (mod (:y (val (find state (str/strip-suffix (:site je) &quot;:local&quot;)))) 10))
+    (nth site-colors  (mod (:y (val (find state (str/strip-suffix (:site je) &quot;:local&quot;)))) 10))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn render-journalEvent [state owner]
+  (reify
+    om/IDisplayName
+    (display-name [_]
+                  &quot;journalEvent&quot;)
+    om/IRender
+    (render [this]
+            (dom/circle #js {:cx (:x state)
+                             :cy (:y state)
+                             :r 3
+                             :stroke &quot;black&quot;
+                             :fill &quot;black&quot;}
+                        (dom/title nil
+                                   (str (:type (:je state)) &quot; : &quot; (.format (goog.i18n.DateTimeFormat. &quot;EEE MMM d, yyyy H:mm&quot;) (js/Date. (:date (:je state))))))))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn render-journalEntry [state owner]
+  (reify
+    om/IDisplayName
+    (display-name [_]
+                  &quot;journalEntry&quot;)
+    om/IRender
+    (render [this]
+            (let [x (:x state)
+                  y (:y state)
+                  lastX (:x (get @last-points (:site state)))
+                  lastY (:y (get @last-points (:site state)))
+                  forkX (if (nil? (:fork-from state))
+                          (:x (get @last-points (str (:site state) &quot;:local&quot;)))
+                          (:x (get @last-points (:fork-from state))))
+                  forkY (if (nil? (:fork-from state))
+                          (:y (get @last-points (str (:site state) &quot;:local&quot;)))
+                          (:y (get @last-points (:fork-from state))))]
+              (if-not (nil? state)(swap! last-points assoc-in [(:site state)] {:x x :y y}))
+              (dom/g nil
+                     ; if this event is a fork we draw a curve from point the page is forked from.
+                     (if (= (:type state) &quot;fork&quot;)
+                       ; check that we have a previous point - there is a rare case we don't.
+                       (if (number? forkX)
+                         (dom/path #js {:d (str &quot;M&quot; (+ 3 forkX) &quot;,&quot; forkY
+                                                &quot;C&quot; (+ (* forkX (- 1 0.5)) (* x 0.5)) &quot;,&quot; forkY
+                                                &quot; &quot; (+ (* forkX (- 1 0.5)) (* x 0.5)) &quot;,&quot; y
+                                                &quot; &quot; x &quot;,&quot; y)
+                                        :fill &quot;none&quot;
+                                        :stroke (:color state)
+                                        :strokeWidth &quot;3px&quot;})))
+                     ; is there a previous point for this line?
+                     (if (number? lastX)
+                       ; if there is, draw a line from it
+                       (dom/line #js {:x1 (+ 3 lastX)
+                                        :y1 lastY
+                                        :x2 (:x state)
+                                        :y2 (:y state)
+                                        :stroke (:color state)
+                                        :strokeWidth &quot;3px&quot;})
+                       ; if not, draw the sitename
+                       (dom/text #js {:x (- x (:margin page-size))
+                                        :y (- y 10)}
+                                   (:site state)))
+                     ; draw line to present
+                     (if-not (str/endswith? (:site state) &quot;:local&quot;)
+                     (dom/line #js {:x1 x
+                                    :y1 y
+                                    :x2 (- (:width page-size) (:margin page-size))
+                                    :y2 y
+                                    :stroke (:color state)
+                                    :strokeWidth &quot;1px&quot;}))
+                     ; drawing the actual event is broken out so we can add some interaction
+                     (om/build render-journalEvent {:x x :y y :je state}))))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn neighborhood-narrative [state owner]
-  &quot;D3 / Om  integration&quot;
+  &quot;Drawing an SVG rendering of the merged page journals.&quot;
   (reify
     om/IDisplayName
     (display-name [_]
@@ -3219,25 +3247,26 @@ resized</p>
     om/IWillMount
     (will-mount [_]
                 (window-resize state))
-    om/IDidMount
-    (did-mount [this]
-               ;; don't do anything if the merged journal is empty
-               (if (not-empty (:mergedJournal state))
-                 (narrative-view state)))
-    om/IDidUpdate
-    (did-update [this prev-props prev-state]
-                ;; only update if the merged journal has changed
-                (when (data-changing prev-props state)
-                  (if (not-empty (:mergedJournal prev-props))
-                    (.remove (.-firstChild (om/get-node owner &quot;d3-node&quot;))))
-                  (narrative-view state)))
     om/IRender
     (render [this]
-            (dom/div #js {:className &quot;neighborhood-narrative&quot;
-                                :react-key &quot;d3-node&quot;
-                                :ref &quot;d3-node&quot;
-                                :id &quot;d3-node&quot;}))))</pre></td></tr><tr><td class="docs"><p>below here is a scratch pad for testing things...</p>
-</td><td class="codes"></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/gdeer81/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_wiki-explorer.core">wiki-explorer.core</li><li class="floating-toc-li" id="floating-toc_wiki-explorer.data">wiki-explorer.data</li><li class="floating-toc-li" id="floating-toc_wiki-explorer.journal">wiki-explorer.journal</li><li class="floating-toc-li" id="floating-toc_wiki-explorer.render">wiki-explorer.render</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+            (set-page-size)
+            (reset! last-points)
+            (def narrative-owner owner)
+            (def narrative-state state)
+            (apply dom/svg #js {:width  (:width page-size)
+                          :height (:height page-size)}
+                   (dom/text #js {:x (/ (:width page-size) 2)
+                                  :y 20
+                                  :fontSize &quot;18&quot;
+                                  :textAnchor &quot;middle&quot;}
+                             (:title (:page state)))
+                   (om/build-all render-journalEntry (:mergedJournal state)
+                                 {:fn #(if-not (= (:type %) &quot;last&quot;)
+                                        (assoc %
+                                           :y (calc-y-pos % (:neighborhood state))
+                                           :x (calc-x-pos % (:mergedJournal state))
+                                           :color (calc-color % (:neighborhood state))))})))))</pre></td></tr><tr><td class="docs"><p>below here is a scratch pad for testing things...</p>
+</td><td class="codes"></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/gdeer81/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_wiki-narrative-chart.core">wiki-narrative-chart.core</li><li class="floating-toc-li" id="floating-toc_wiki-narrative-chart.data">wiki-narrative-chart.data</li><li class="floating-toc-li" id="floating-toc_wiki-narrative-chart.journal">wiki-narrative-chart.journal</li><li class="floating-toc-li" id="floating-toc_wiki-narrative-chart.render">wiki-narrative-chart.render</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
 SyntaxHighlighter.all();
 
 // hackity hack

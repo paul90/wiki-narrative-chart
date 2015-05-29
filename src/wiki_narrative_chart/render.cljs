@@ -114,7 +114,9 @@
                              :stroke "black"
                              :fill "black"}
                         (dom/title nil
-                                   (str (:type (:je state)) " : " (.format (goog.i18n.DateTimeFormat. "EEE MMM d, yyyy H:mm") (js/Date. (:date (:je state))))))))))
+                                   (str (:type (:je state)) " : " (.format (goog.i18n.DateTimeFormat. "EEE MMM d, yyyy H:mm") (js/Date. (:date (:je state))))
+                                        "\n"
+                                        (:text (:item (:je state)))))))))
 
 
 (defn render-journalEntry [state owner]

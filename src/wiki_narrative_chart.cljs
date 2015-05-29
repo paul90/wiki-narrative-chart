@@ -35,6 +35,7 @@
 
 ;; we render a status bar with the site icons for the sites in the neighborhood. Their state om/will
 ;; change as they are processed, but reflecting this in the interface just happens.
+
 (om/root
    render/neighborhood-view
    app-state
@@ -59,10 +60,5 @@
 
 (journal/build-neighborhood-journal app-state)
 
-;;(print (:neighborhood @app-state))
-;;(print @app-state)
 
-; (:mergedJournal @app-state)
-
-;(conj (vec (:mergedJournal @app-state)) {:type "last"})
 

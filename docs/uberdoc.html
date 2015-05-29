@@ -2893,6 +2893,7 @@ site prefixed by a '@'.</p>
   (doseq [site sites]
     (data/add-neighbor app-state site)))</pre></td></tr><tr><td class="docs"><p>we render a status bar with the site icons for the sites in the neighborhood. Their state om/will
 change as they are processed, but reflecting this in the interface just happens.</p>
+</td><td class="codes"></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(om/root
    render/neighborhood-view
    app-state
@@ -2907,10 +2908,7 @@ the view should get updated as the merged journal grows.</p>
 <p>We need to take each site in the <code>:processQueue</code>, fetch the page from that site
 and process the journal into the form we want, and merge it into the growning <code>:mergedJournal</code></p>
 </td><td class="codes"></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(journal/build-neighborhood-journal app-state)</pre></td></tr><tr><td class="docs"><p>(print (:neighborhood @app-state))
-(print @app-state)</p>
-</td><td class="codes"></td></tr><tr><td class="docs"><p>(conj (vec (:mergedJournal @app-state)) {:type "last"})</p>
-</td><td class="codes"></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#wiki-narrative-chart.data" name="wiki-narrative-chart.data"><h1 class="project-name">wiki-narrative-chart.data</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Contains functions for manipulating the application data</p>
+</td><td class="codes"><pre class="brush: clojure">(journal/build-neighborhood-journal app-state)</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#wiki-narrative-chart.data" name="wiki-narrative-chart.data"><h1 class="project-name">wiki-narrative-chart.data</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Contains functions for manipulating the application data</p>
 </td><td class="codes"><pre class="brush: clojure">(ns wiki-narrative-chart.data
   (:require [om.core :as om :include-macros true]))</pre></td></tr><tr><td class="docs"><p>Page:</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>Add the page slug to the application state</p>
@@ -3184,7 +3182,9 @@ resized</p>
                              :stroke &quot;black&quot;
                              :fill &quot;black&quot;}
                         (dom/title nil
-                                   (str (:type (:je state)) &quot; : &quot; (.format (goog.i18n.DateTimeFormat. &quot;EEE MMM d, yyyy H:mm&quot;) (js/Date. (:date (:je state))))))))))</pre></td></tr><tr><td class="docs">
+                                   (str (:type (:je state)) &quot; : &quot; (.format (goog.i18n.DateTimeFormat. &quot;EEE MMM d, yyyy H:mm&quot;) (js/Date. (:date (:je state))))
+                                        &quot;\n&quot;
+                                        (:text (:item (:je state)))))))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn render-journalEntry [state owner]
   (reify
     om/IDisplayName
